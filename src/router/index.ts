@@ -1,9 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/views/HomeView.vue'
-import LoginView from '../views/LoginView.vue'
-import CadastroView from '../views/CadastroView.vue'
-import PesquisaView from '../views/pesquisaView.vue'
-import PerfilUsuarioView from '../views/perfilUsuarioView.vue'
+import LoginView from '@/views/LoginView.vue'
+import CadastroView from '@/views/CadastroView.vue'
+import PesquisaView from '@/views/PesquisaView.vue'
+import PerfilUsuarioView from '@/views/PerfilUsuarioView.vue'
+import FeedbackRequestView from '@/views/FeedbackRequestView.vue'
+import FeedbackResponseView from '@/views/FeedbackResponseView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -37,6 +39,16 @@ const router = createRouter({
       path: '/perfil',
       name: 'perfil',
       component:PerfilUsuarioView
+    },
+    {
+      path: '/solicitar-feedback',
+      name: 'solicitar-feedback',
+      component:FeedbackRequestView
+    },
+    {
+      path: '/responder-feedback',
+      name: 'responder-feedback',
+      component:FeedbackResponseView
     }
   ]
 })

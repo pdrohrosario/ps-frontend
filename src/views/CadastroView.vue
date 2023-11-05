@@ -4,7 +4,7 @@
       <div class=" bg-zinc-100 h-[600px] mt-20 rounded-[10px] shadow border p-10">
         <div class="grid grid-cols-1 justify-items-center">
           <div>
-            <form @submit.prevent="cadastro" class="flex flex-col">
+            <form class="flex flex-col">
               <div class="text-gray-900 text-5xl text-center font-light font-['Inter']">Cadastro</div>
               <div class="mt-10">
                 <label class="text-gray-900 text-2xl font-normal font-['Inter'] block">Email:</label>
@@ -57,7 +57,9 @@
     return {
       perfil: 'pais', // ou 'professor', dependendo do contexto inicial
       nrFilhos: '',
-      qtFeedback: ''
+      qtFeedback: '',
+      email: '',
+      password: '',
     };
   }
     
@@ -67,8 +69,4 @@
   const password = ref('')  
 
   const router = useRouter()
-
-  const cadastro = () => {
-    console.log('Fazendo login com:', email.value, password.value)
-}
 </script>
