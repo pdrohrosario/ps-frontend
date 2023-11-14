@@ -31,45 +31,17 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="bg-light-gray border-b" v-for="feedback in listFeedback">
+              <tr class="bg-light-gray border-b" v-for="usuario in listUsuario">
                 <td scope="row" class="px-6 py-4">
-                  {{ feedback.id }}
+                  {{ usuario.id }}
                 </td>
-                <td class="pr-90 py-4">{{ feedback.solicitacao }}</td>
-                <td class="px-6 py-4">
-                  {{ feedback.ativo }}
-                </td>
+                <td class="pr-90 py-4">{{ usuario.nome }}</td>
                 <td class="px-6 py-4">
                   <div
                     class="flex-col mt-8 space-y-4 md:flex md:space-y-0 md:flex-row md:items-center md:space-x-10 md:mt-0"
                   >
-                    <router-link to="/feedback/resposta">
+                    
                       <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                        stroke="currentColor"
-                        class="w-6 h-6"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          d="M15 13.5H9m4.06-7.19l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z"
-                        />
-                      </svg>
-                    </router-link>
-                  </div>
-                </td>
-              </tr>
-              <tr class="bg-light-gray border-b" v-for="pais of listaPais">
-                <td scope="row" class="px-6 py-4">1</td>
-                <td class="pr-90 py-4">Roberto Carlos</td>
-                <td class="px-6 py-4">
-                  <div
-                    class="flex-col mt-8 space-y-4 md:flex md:space-y-0 md:flex-row md:items-center md:space-x-10 md:mt-0"
-                  >
-                    <svg
                       @click="adicionarPais"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
@@ -84,6 +56,7 @@
                         d="M12 4.5v15m7.5-7.5h-15"
                       />
                     </svg>
+                   
                   </div>
                 </td>
               </tr>
@@ -98,6 +71,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import MessageError from '@/components/MessageError.vue'
+import type Usuario from '@/models/Usuario';
 
 const pesquisa = ref('')
 
@@ -130,14 +104,16 @@ const cleanPesquisa = () => {
 
 const adicionarPais = () => {}
 
-const novoFeedback = ref<Feedback>({
-  id: 1,
-  idPai: 2,
-  solicitacao: 'teste',
-  resposta: '',
-  ativo: true
+const novoUsuario = ref<Usuario>({
+  id: 0,
+      nome: 'Roberto',
+      email: 'teste@gmail.com',
+      password: 'teste',
+      perfil: 'professor',
+      frequenciaFeedbacks:0,
+      filhos:''
 })
 
-const listFeedback = ref<Feedback[]>([])
-listFeedback.value?.push({ ...novoFeedback.value })
+const listUsuario = ref<Usuario[]>([])
+listUsuario.value.push(novoUsuario.value)
 </script>

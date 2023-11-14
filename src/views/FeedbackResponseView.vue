@@ -48,7 +48,7 @@
               type="text"
               v-model="resposta"
               class="w-full min-h-[200px] rounded-[5px] border"
-              v-bind:readonly="true"
+              :readonly="!ativo"
             ></textarea>
           </div>
           <MessageError v-if="errorResposta" :message="errorResposta" />
@@ -81,13 +81,17 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import MessageError from '@/components/MessageError.vue'
+import { useStore } from 'vuex';
+import type Usuario from './models/Usuario';
 
+const store = useStore();
 const professor = ref('')
 const solicitacao = ref('')
 const resposta = ref('')
+const usuario : Usuario = store.state.usuario; 
+const perfil = ref(usuario.perfil)
 
-const perfil = ref('professor')
-const ativo = ref(false)
+const ativo = ref(true)
 const errorResposta = ref('')
 
 const validateResposta = () => {

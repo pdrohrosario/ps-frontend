@@ -65,6 +65,7 @@
 </template>
 
 <script setup lang="ts">
+
 const props = defineProps({
   habilitarIcones: Boolean,
   perfil: String

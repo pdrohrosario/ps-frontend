@@ -5,9 +5,14 @@
       <form @submit.prevent="enviarSolicitacao()">
         <div class="text-gray-900 text-xl text-start font-light font-inter mt-5">Professor:</div>
         <div class="flex w-full flex-row justify-items-start">
-          <VueMultiselect v-model="professor" :options="options"> </VueMultiselect>
+          <VueMultiselect v-model="professor" :options="listProfessores"> </VueMultiselect>
         </div>
         <MessageError v-if="errorProfessor" :message="errorProfessor" />
+        <div class="text-gray-900 text-xl text-start font-light font-inter mt-5">Aluno:</div>
+        <div class="flex w-full flex-row justify-items-start">
+          <VueMultiselect v-model="aluno" :options="listAlunos"> </VueMultiselect>
+        </div>
+        <MessageError v-if="errorAluno" :message="errorAluno" />
         <div class="text-gray-900 text-xl text-start font-light font-inter mt-5">Solicitação:</div>
         <div class="flex w-full flex-row justify-items-start">
           <textarea
@@ -40,11 +45,21 @@ import { ref, onMounted } from 'vue'
 import MessageError from '@/components/MessageError.vue'
 import VueMultiselect from 'vue-multiselect'
 
+import { useStore } from 'vuex';
+import type Usuario from '@/models/Usuario';
+
+const store = useStore();
+
+const usuario : Usuario = store.state.usuario; 
+
 const professor = ref('')
 const solicitacao = ref('')
+const aluno = ref('')
 
 const errorProfessor = ref('')
 const errorSolicitacao = ref('')
+const errorAluno = ref('')
+
 
 const options = ['list', 'of', 'options']
 
@@ -53,6 +68,14 @@ const validateProfessor = () => {
     errorProfessor.value = 'Selecione um professor para avaliar o feedback.'
   } else {
     errorSolicitacao.value = ''
+  }
+}
+
+const validateAluno = () => {
+  if (aluno.value.length == 0) {
+    errorAluno.value = 'Selecione um aluno para o feedback.'
+  } else {
+    errorAluno.value = ''
   }
 }
 
@@ -73,15 +96,22 @@ const cleanInput = () => {
   cleanErrors()
   professor.value = ''
   solicitacao.value = ''
+  aluno.value = ''
 }
 
 const enviarSolicitacao = () => {
   cleanErrors()
   validateProfessor()
   validateSolicitacao()
+  validateAluno()
   if (errorProfessor.value === '' && errorSolicitacao.value === '') {
     console.log('enviar')
   }
 }
+
+const listProfessores = ref<Usuario[]>([])
+
+const listAlunos= ref<String[]>([])
+
 </script>
 <style src="vue-multiselect/dist/vue-multiselect.css"></style>

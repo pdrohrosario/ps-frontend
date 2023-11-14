@@ -6,8 +6,8 @@
         <div
           class="rounded-[5px] bg-light-gray w-[200px] h-[51px] my-5 p-5 flex items-center justify-center"
         >
-          <span class="text-[24px] font-inter text-gray text-center inline-block w-32"
-            >Perfil: Pais</span
+          <span class="text-[24px] font-inter text-gray text-center inline-block"
+            >{{perfil.valueOf().charAt(0).toUpperCase() + perfil.slice(1)}}</span
           >
           <!--trocar por variavel-->
         </div>
@@ -58,9 +58,16 @@
         <form @submit.prevent="editarPefil()" class="flex-col grid grid-cols-1 gap-1 items-center">
           <div class="">
             <div class="text-gray-900 w-[396px] h-[45px] text-2xl font-normal font-inter">
+              Nome:
+            </div>
+            <input type="text" class="w-full h-[45px] rounded-[5px] border" v-model="usuario.nome" />
+            <MessageError v-if="errorNome" :message="errorNome" />
+          </div>
+          <div class="">
+            <div class="text-gray-900 w-[396px] h-[45px] text-2xl font-normal font-inter">
               Email:
             </div>
-            <input type="text" class="w-full h-[45px] rounded-[5px] border" v-model="email" />
+            <input type="text" class="w-full h-[45px] rounded-[5px] border" v-model="usuario.email" />
             <MessageError v-if="errorEmail" :message="errorEmail" />
           </div>
           <div>
@@ -70,7 +77,7 @@
             <input
               type="password"
               class="w-full h-[45px] rounded-[5px] border"
-              v-model="password"
+              v-model="usuario.password"
             />
             <MessageError v-if="errorPassword" :message="errorPassword" />
           </div>
@@ -88,7 +95,7 @@
                     <span class="m-auto text-2xl font-thin">−</span>
                   </button>
                   <input
-                    v-model="nrFilhos"
+                    v-model="count"
                     type="number"
                     class="outline-none focus:outline-none text-center w-full bg-light-gray font-semibold text-md hover:text-black focus:text-black md:text-base cursor-default flex items-center text-gray-700 outline-none"
                     name="custom-input-number"
@@ -101,7 +108,7 @@
                   </button>
                 </div>
               </div>
-              <div class="mt-5" v-for="index in nrFilhos">
+              <div class="mt-5" v-for="index in count">
                 <div class="text-gray-900 text-1xl font-normal font-inter block">
                   Filho: {{ index }}:
                 </div>
@@ -158,13 +165,17 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-
+import { useStore } from 'vuex';
 import MessageError from '../components/MessageError.vue'
+import type Usuario from '@/models/Usuario';
+
+const store = useStore();
+
+const usuario : Usuario = store.state.usuario; 
 
 const email = ref('')
 const password = ref('')
-const perfil = ref('pais')
-const nrFilhos = ref(0)
+const perfil = ref(usuario.perfil)
 const qtFeedback = ref(0)
 const count = ref(0)
 
@@ -172,8 +183,9 @@ const errorEmail = ref('')
 const errorPassword = ref('')
 const errorNrFilhos = ref('')
 const errorQtFeedback = ref('')
+const errorNome = ref('')
 
-const nomesFilhos = ref(Array.from({ length: nrFilhos.value }, () => '')) // Inicializa um array vazio de nomes dos filhos
+const nomesFilhos = ref(Array.from({ length: count.value }, () => '')) // Inicializa um array vazio de nomes dos filhos
 
 const validateEmail = () => {
   if (email.value.length == 0 || !/^\S+@\S+\.\S+$/.test(email.value)) {
@@ -189,14 +201,6 @@ const validatePassword = () => {
     errorPassword.value = 'Senha inválida, insira novamente.'
   } else {
     errorPassword.value = ''
-  }
-}
-
-const validateNrFilhos = () => {
-  if (nrFilhos.value == 0) {
-    errorNrFilhos.value = 'Número de filhos deve ser maior que zero.'
-  } else {
-    errorNrFilhos.value = ''
   }
 }
 
@@ -221,12 +225,12 @@ const editarPefil = () => {
   validatePassword()
   if (errorEmail.value === '' && errorPassword.value === '') {
     if (perfil.value == 'pais') {
-      validateNrFilhos()
+     
       if (errorNrFilhos.value === '') {
         console.log('editar')
       }
     } else {
-      validateQtFeedback()
+      
       if (errorQtFeedback.value === '') {
         console.log('editar')
       }
@@ -235,20 +239,14 @@ const editarPefil = () => {
 }
 
 const decrement = () => {
-  count.value = Math.max(1, nrFilhos.value - 1)
-  perfilParamCount()
+  count.value = Math.max(1, count.value - 1)
+
 }
 
 const increment = () => {
   count.value += 1
-  perfilParamCount()
+
 }
 
-const perfilParamCount = () => {
-  if (perfil.value === 'pais') {
-    nrFilhos.value = count.value
-  } else {
-    qtFeedback.value = count.value
-  }
-}
+
 </script>

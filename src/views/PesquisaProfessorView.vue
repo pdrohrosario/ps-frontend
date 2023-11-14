@@ -33,9 +33,9 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="bg-light-gray border-b">
-                <td scope="row" class="px-6 py-4">1</td>
-                <td class="pr-90 py-4">Roberto Carlos</td>
+              <tr class="bg-light-gray border-b" v-for="usuario in listUsuario">
+                <td scope="row" class="px-6 py-4">{{ usuario.id }}</td>
+                <td class="pr-90 py-4">{{ usuario.nome }}</td>
                 <td class="px-6 py-4">
                   <div
                     class="flex-col mt-8 space-y-4 md:flex md:space-y-0 md:flex-row md:items-center md:space-x-10 md:mt-0"
@@ -69,6 +69,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import MessageError from '@/components/MessageError.vue'
+import type Usuario from '@/models/Usuario';
 
 const pesquisa = ref('')
 
@@ -101,5 +102,17 @@ const cleanPesquisa = () => {
 
 const adicionarProfessor = () => {}
 
-const pais = true
+const novoUsuario = ref<Usuario>({
+  id: 0,
+      nome: 'Roberto',
+      email: 'teste@gmail.com',
+      password: 'teste',
+      perfil: 'professor',
+      frequenciaFeedbacks:0,
+      filhos:''
+})
+
+const listUsuario = ref<Usuario[]>([])
+listUsuario.value.push(novoUsuario.value)
+
 </script>

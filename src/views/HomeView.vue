@@ -3,7 +3,7 @@
     <div class="p-10">
       <div class="flex justify-between flex-row justify-items-start">
         <div class="text-gray-900 text-4xl text-center font-light font-inter">Histórico:</div>
-        <div v-if="true" class="">
+        <div v-if="usuario.perfil == 'pais'" class="">
           <router-link to="/feedback/solicitacao">
             <button
               class="w-[256px] h-[58px] bg-gray-800 rounded-[5px] text-zinc-100 text-[20px] font-normal font-inter"
@@ -67,6 +67,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import type Feedback from '@/models/Feedback'
+import { useStore } from 'vuex';
+import type Usuario from '@/models/Usuario';
+
+const store = useStore();
+
+const usuario : Usuario = store.state.usuario; 
 
 const novoFeedback = ref<Feedback>({
   id: 1,
