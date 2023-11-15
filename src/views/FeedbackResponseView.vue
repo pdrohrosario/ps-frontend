@@ -81,14 +81,15 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import MessageError from '@/components/MessageError.vue'
-import { useStore } from 'vuex';
-import type Usuario from './models/Usuario';
+import type Usuario from './models/Usuario'
+import { useUsuarioStore } from '../stores/'
 
-const store = useStore();
+const store = useUsuarioStore()
+
 const professor = ref('')
 const solicitacao = ref('')
 const resposta = ref('')
-const usuario : Usuario = store.state.usuario; 
+const usuario: Usuario = store.usuario
 const perfil = ref(usuario.perfil)
 
 const ativo = ref(true)

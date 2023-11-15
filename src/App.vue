@@ -2,14 +2,14 @@
 import { RouterLink, RouterView } from 'vue-router'
 import NavBar from './components/NavBar.vue'
 import { useRoute } from 'vue-router'
-import { useStore } from 'vuex';
-import type Usuario from './models/Usuario';
+import { useUsuarioStore } from './stores/'
+import type Usuario from './models/Usuario'
 
 const route = useRoute()
 
-const store = useStore();
+const store = useUsuarioStore()
 
-const usuario : Usuario = store.state.usuario; 
+const usuario: Usuario = store.usuario
 
 const habilitarIconeView = () => {
   const routeName = route.name

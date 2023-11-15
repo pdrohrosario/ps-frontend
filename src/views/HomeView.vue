@@ -67,12 +67,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import type Feedback from '@/models/Feedback'
-import { useStore } from 'vuex';
-import type Usuario from '@/models/Usuario';
+import type Usuario from '@/models/Usuario'
+import { useUsuarioStore } from '../stores/'
 
-const store = useStore();
+const store = useUsuarioStore()
 
-const usuario : Usuario = store.state.usuario; 
+const usuario: Usuario = store.usuario
 
 const novoFeedback = ref<Feedback>({
   id: 1,

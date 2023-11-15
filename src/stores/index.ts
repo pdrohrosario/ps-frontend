@@ -1,34 +1,36 @@
-import { createStore } from 'vuex';
+import { defineStore } from 'pinia'
 
-export default createStore({
-  state: {
-    isAuthenticated: false,
-    usuario: {
-      id: 0,
-      nome: 'Roberto',
-      email: 'teste@gmail.com',
-      password: 'teste',
-      perfil: 'pais',
-      frequenciaFeedbacks:0,
-      filhos:''
-    },
+export const useUsuarioStore = defineStore('usuario', {
+  state: () => {
+    return {
+      isAuthenticated: false,
+      usuario: {
+        id: 0,
+        nome: 'Roberto',
+        email: 'teste@gmail.com',
+        password: 'teste',
+        perfil: 'pais',
+        frequenciaFeedbacks: 0,
+        filhos: ''
+      }
+    }
   },
-  mutations: {
+  actions: {
     login(state, userData) {
-      state.isAuthenticated = true;
-      state.usuario = userData;
+      state.isAuthenticated = true
+      state.usuario = userData
     },
     logout(state) {
-      state.isAuthenticated = false;
+      state.isAuthenticated = false
       state.usuario = {
         id: 0,
         nome: '',
         email: '',
         password: '',
         perfil: '',
-        frequenciaFeedbacks:0,
-        filhos:''
-      };
-    },
-  },
-});
+        frequenciaFeedbacks: 0,
+        filhos: ''
+      }
+    }
+  }
+})

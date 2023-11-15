@@ -6,9 +6,9 @@
         <div
           class="rounded-[5px] bg-light-gray w-[200px] h-[51px] my-5 p-5 flex items-center justify-center"
         >
-          <span class="text-[24px] font-inter text-gray text-center inline-block"
-            >{{perfil.valueOf().charAt(0).toUpperCase() + perfil.slice(1)}}</span
-          >
+          <span class="text-[24px] font-inter text-gray text-center inline-block">{{
+            perfil.valueOf().charAt(0).toUpperCase() + perfil.slice(1)
+          }}</span>
           <!--trocar por variavel-->
         </div>
 
@@ -60,14 +60,22 @@
             <div class="text-gray-900 w-[396px] h-[45px] text-2xl font-normal font-inter">
               Nome:
             </div>
-            <input type="text" class="w-full h-[45px] rounded-[5px] border" v-model="usuario.nome" />
+            <input
+              type="text"
+              class="w-full h-[45px] rounded-[5px] border"
+              v-model="usuario.nome"
+            />
             <MessageError v-if="errorNome" :message="errorNome" />
           </div>
           <div class="">
             <div class="text-gray-900 w-[396px] h-[45px] text-2xl font-normal font-inter">
               Email:
             </div>
-            <input type="text" class="w-full h-[45px] rounded-[5px] border" v-model="usuario.email" />
+            <input
+              type="text"
+              class="w-full h-[45px] rounded-[5px] border"
+              v-model="usuario.email"
+            />
             <MessageError v-if="errorEmail" :message="errorEmail" />
           </div>
           <div>
@@ -165,13 +173,13 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useStore } from 'vuex';
 import MessageError from '../components/MessageError.vue'
-import type Usuario from '@/models/Usuario';
+import type Usuario from '@/models/Usuario'
+import { useUsuarioStore } from '../stores/'
 
-const store = useStore();
+const store = useUsuarioStore()
 
-const usuario : Usuario = store.state.usuario; 
+const usuario: Usuario = store.usuario
 
 const email = ref('')
 const password = ref('')
@@ -225,12 +233,10 @@ const editarPefil = () => {
   validatePassword()
   if (errorEmail.value === '' && errorPassword.value === '') {
     if (perfil.value == 'pais') {
-     
       if (errorNrFilhos.value === '') {
         console.log('editar')
       }
     } else {
-      
       if (errorQtFeedback.value === '') {
         console.log('editar')
       }
@@ -240,13 +246,9 @@ const editarPefil = () => {
 
 const decrement = () => {
   count.value = Math.max(1, count.value - 1)
-
 }
 
 const increment = () => {
   count.value += 1
-
 }
-
-
 </script>

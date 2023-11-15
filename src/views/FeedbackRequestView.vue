@@ -44,13 +44,12 @@
 import { ref, onMounted } from 'vue'
 import MessageError from '@/components/MessageError.vue'
 import VueMultiselect from 'vue-multiselect'
+import type Usuario from '@/models/Usuario'
+import { useUsuarioStore } from '../stores/'
 
-import { useStore } from 'vuex';
-import type Usuario from '@/models/Usuario';
+const store = useUsuarioStore()
 
-const store = useStore();
-
-const usuario : Usuario = store.state.usuario; 
+const usuario: Usuario = store.usuario
 
 const professor = ref('')
 const solicitacao = ref('')
@@ -59,7 +58,6 @@ const aluno = ref('')
 const errorProfessor = ref('')
 const errorSolicitacao = ref('')
 const errorAluno = ref('')
-
 
 const options = ['list', 'of', 'options']
 
@@ -111,7 +109,6 @@ const enviarSolicitacao = () => {
 
 const listProfessores = ref<Usuario[]>([])
 
-const listAlunos= ref<String[]>([])
-
+const listAlunos = ref<String[]>([])
 </script>
 <style src="vue-multiselect/dist/vue-multiselect.css"></style>
