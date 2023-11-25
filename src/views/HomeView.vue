@@ -1,9 +1,9 @@
 <template>
   <div class="bg-zinc-100 w-11/12 h-[500px] mt-20 rounded-[10px] font-inter shadow border">
     <div class="p-10">
-      <div class="flex justify-between flex-row justify-items-start">
+      <div class="flex justify-between flex-row justify-items-start" @load="loadUserFeedbacks">
         <div class="text-gray-900 text-4xl text-center font-light font-inter">Histórico:</div>
-        <div v-if="true" class="">
+        <div v-if="perfil.valueOf() == 'pais'" class="">
           <router-link to="/feedback/solicitacao">
             <button
               class="w-[256px] h-[58px] bg-gray-800 rounded-[5px] text-zinc-100 text-[20px] font-normal font-inter"
@@ -29,15 +29,15 @@
                 <td scope="row" class="px-6 py-4">
                   {{ feedback.id }}
                 </td>
-                <td class="pr-90 py-4">{{ feedback.solicitacao }}</td>
+                <td class="pr-90 py-4">{{ feedback.question }}</td>
                 <td class="px-6 py-4">
-                  {{ feedback.ativo }}
+                  {{ feedback.active ? 'Ativo' : 'Inativo' }}
                 </td>
                 <td class="px-6 py-4">
                   <div
                     class="flex-col mt-8 space-y-4 md:flex md:space-y-0 md:flex-row md:items-center md:space-x-10 md:mt-0"
                   >
-                    <router-link to="/feedback/resposta">
+                    <router-link :to="`/feedback/resposta/${feedback.id}`">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
@@ -66,16 +66,30 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import type Feedback from '@/models/Feedback'
+import { useUsuarioStore } from '../stores/'
+import { FeedbackService } from '@/services/FeedbackService';
+import type { FeedbackDTO } from '@/dtos/feedback-dto';
 
-const novoFeedback = ref<Feedback>({
-  id: 1,
-  idPai: 2,
-  solicitacao: 'teste',
-  resposta: '',
-  ativo: true
-})
+const store = useUsuarioStore()
 
-const listFeedback = ref<Feedback[]>([])
-listFeedback.value?.push({ ...novoFeedback.value })
+const feedbackService : FeedbackService = new FeedbackService;
+
+const listFeedback = ref<FeedbackDTO[]>([])
+
+const usuario = store.usuario
+
+const perfil = ref(usuario.profile.toLocaleLowerCase())
+
+async function loadUserFeedbacks() {
+  try {
+    const feedbackList = await feedbackService.findFeebacksByUserId(usuario.id);
+    listFeedback.value= feedbackList
+  } catch (error) {
+    
+  }
+}
+
+loadUserFeedbacks();
+
+
 </script>

@@ -33,15 +33,15 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="bg-light-gray border-b">
-                <td scope="row" class="px-6 py-4">1</td>
-                <td class="pr-90 py-4">Roberto Carlos</td>
+              <tr class="bg-light-gray border-b" v-for="professor in listProfessor">
+                <td scope="row" class="px-6 py-4">{{ professor.id }}</td>
+                <td class="pr-90 py-4">{{ professor.name }}</td>
                 <td class="px-6 py-4">
                   <div
                     class="flex-col mt-8 space-y-4 md:flex md:space-y-0 md:flex-row md:items-center md:space-x-10 md:mt-0"
                   >
+                  <a @click="adicionarContato(usuario.id, professor.id, )">
                     <svg
-                      @click="adicionarProfessor"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
@@ -55,6 +55,7 @@
                         d="M12 4.5v15m7.5-7.5h-15"
                       />
                     </svg>
+                  </a>
                   </div>
                 </td>
               </tr>
@@ -69,17 +70,32 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import MessageError from '@/components/MessageError.vue'
+import { UserService } from '@/services/UsuarioService';
+import { ContatoService } from '@/services/ContatoService';
+import { UserDTO } from "src/dtos/user-dto";
+import { useRouter } from 'vue-router';
+import { ContactCreationDTO } from '@/dtos/contato-dto';
+import { useUsuarioStore } from '../stores/'
+
+const store = useUsuarioStore()
+
+const usuario = store.usuario;
+const router = useRouter();
+const userService = new UserService();
+const contatoService = new ContatoService();
+
+const listProfessor = ref<UserDTO[]>([])
 
 const pesquisa = ref('')
-
 const errorPesquisa = ref('')
 
 const validatePesquisa = () => {
   if (pesquisa.value.length == 0) {
     errorPesquisa.value = 'Preencha o campo pesquisa.'
-  } else {
-    errorPesquisa.value = ''
+    return false;
   }
+
+  return true;
 }
 
 const cleanErrors = () => {
@@ -88,18 +104,37 @@ const cleanErrors = () => {
 
 const buscarProfessor = () => {
   cleanErrors()
-  validatePesquisa()
-  if (errorPesquisa.value === '') {
-    console.log('buscar')
+  if (validatePesquisa()) {
+    pesquisarProfessor(pesquisa.value)
   }
 }
+
+async function pesquisarProfessor(name : string) {
+  try {
+    const pais = await userService.getProfessorByName(name);
+    listProfessor.value.push(...pais)
+  } catch (error) {
+    
+  }
+}
+
+async function adicionarContato(paiId : number, professorId : number) {
+  try {
+    const contato : ContactCreationDTO = {
+      parentId : paiId,
+      teacherId : professorId
+    };
+    const novoContato = await contatoService.criarContato(contato);
+    console.log(novoContato)
+  } catch (error) {
+    
+  }
+}
+
 
 const cleanPesquisa = () => {
   cleanErrors()
   pesquisa.value = ''
 }
 
-const adicionarProfessor = () => {}
-
-const pais = true
 </script>

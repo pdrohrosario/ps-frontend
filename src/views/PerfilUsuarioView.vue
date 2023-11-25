@@ -6,9 +6,9 @@
         <div
           class="rounded-[5px] bg-light-gray w-[200px] h-[51px] my-5 p-5 flex items-center justify-center"
         >
-          <span class="text-[24px] font-inter text-gray text-center inline-block w-32"
-            >Perfil: Pais</span
-          >
+          <span class="text-[24px] font-inter text-gray text-center inline-block">{{
+            perfil.valueOf().charAt(0).toUpperCase() + perfil.slice(1)
+          }}</span>
           <!--trocar por variavel-->
         </div>
 
@@ -55,12 +55,27 @@
       </div>
 
       <div>
-        <form @submit.prevent="editarPefil()" class="flex-col grid grid-cols-1 gap-1 items-center">
+        <form @submit.prevent="editUser()" class="flex-col grid grid-cols-1 gap-1 items-center">
+          <div class="">
+            <div class="text-gray-900 w-[396px] h-[45px] text-2xl font-normal font-inter">
+              Nome:
+            </div>
+            <input
+              type="text"
+              class="w-full h-[45px] rounded-[5px] border"
+              v-model="usuario.name"
+            />
+            <MessageError v-if="errorNome" :message="errorNome" />
+          </div>
           <div class="">
             <div class="text-gray-900 w-[396px] h-[45px] text-2xl font-normal font-inter">
               Email:
             </div>
-            <input type="text" class="w-full h-[45px] rounded-[5px] border" v-model="email" />
+            <input
+              type="text"
+              class="w-full h-[45px] rounded-[5px] border"
+              v-model="usuario.email"
+            />
             <MessageError v-if="errorEmail" :message="errorEmail" />
           </div>
           <div>
@@ -70,7 +85,7 @@
             <input
               type="password"
               class="w-full h-[45px] rounded-[5px] border"
-              v-model="password"
+              v-model="usuario.password"
             />
             <MessageError v-if="errorPassword" :message="errorPassword" />
           </div>
@@ -82,47 +97,11 @@
               <div class="custom-number-input h-10 w-32">
                 <div class="flex flex-row h-10 w-full rounded-lg relative bg-transparent mt-1">
                   <button
-                    @click="decrement"
+                   
                     class="bg-light-gray text-gray-600 hover:text-gray-700 hover:bg-gray-400 h-full w-20 rounded-l cursor-pointer outline-none"
+                     
                   >
-                    <span class="m-auto text-2xl font-thin">−</span>
-                  </button>
-                  <input
-                    v-model="nrFilhos"
-                    type="number"
-                    class="outline-none focus:outline-none text-center w-full bg-light-gray font-semibold text-md hover:text-black focus:text-black md:text-base cursor-default flex items-center text-gray-700 outline-none"
-                    name="custom-input-number"
-                  />
-                  <button
-                    @click="increment"
-                    class="bg-light-gray text-gray-600 hover:text-gray-700 hover:bg-gray-400 h-full w-20 rounded-r cursor-pointer"
-                  >
-                    <span class="m-auto text-2xl font-thin">+</span>
-                  </button>
-                </div>
-              </div>
-              <div class="mt-5" v-for="index in nrFilhos">
-                <div class="text-gray-900 text-1xl font-normal font-inter block">
-                  Filho: {{ index }}:
-                </div>
-                <input
-                  type="text"
-                  class="w-full h-[45px] rounded-[5px] border"
-                  v-model="nomesFilhos[index]"
-                />
-              </div>
-            </div>
-            <div v-else>
-              <div class="text-gray-900 text-2xl font-normal font-inter block">
-                Frequência de feedback:
-              </div>
-              <div class="custom-number-input h-10 w-32">
-                <div class="flex flex-row h-10 w-full rounded-lg relative bg-transparent mt-1">
-                  <button
-                    @click="decrement"
-                    class="bg-light-gray text-gray-600 hover:text-gray-700 hover:bg-gray-400 h-full w-20 rounded-l cursor-pointer outline-none"
-                  >
-                    <span class="m-auto text-2xl font-thin">−</span>
+                  <span    @click="decrement()" class="h-full w-20 m-auto text-2xl font-thin">−</span>
                   </button>
                   <input
                     v-model="count"
@@ -131,13 +110,52 @@
                     name="custom-input-number"
                   />
                   <button
-                    @click="increment"
+                    
                     class="bg-light-gray text-gray-600 hover:text-gray-700 hover:bg-gray-400 h-full w-20 rounded-r cursor-pointer"
+                     
                   >
-                    <span class="m-auto text-2xl font-thin">+</span>
+                  <span    @click="increment()" class="h-full w-20 m-auto text-2xl font-thin">+</span>
                   </button>
                 </div>
               </div>
+              <div class="mt-5" v-for="(item, index) in listFilhos">
+              
+                <input
+                  type="text"
+                  class="w-full h-[45px] rounded-[5px] border"
+                  v-model="listFilhos[index]"
+                />
+              </div>
+            </div>
+            <div v-if="perfil === 'professor'">
+              <div class="text-gray-900 text-2xl font-normal font-inter block">
+                Frequência de feedback:
+              </div>
+              <div class="custom-number-input h-10 w-32">
+                <div class="flex flex-row h-10 w-full rounded-lg relative bg-transparent mt-1">
+                  <a
+                    
+                    class="bg-light-gray text-gray-600 hover:text-gray-700 hover:bg-gray-400 h-full w-20 rounded-l cursor-pointer outline-none"
+                    v="edicao"
+                  >
+                    <span    @click="decrement()" class="h-full w-20 m-auto text-2xl font-thin">−</span>
+                </a>
+                  <input
+                    v-model="count"
+                    type="number"
+                    class="outline-none focus:outline-none text-center w-full bg-light-gray font-semibold text-md hover:text-black focus:text-black md:text-base cursor-default flex items-center text-gray-700 outline-none"
+                    name="custom-input-number" disabled="true"
+                  />
+                  <a
+                    
+                    class="bg-light-gray text-gray-600 hover:text-gray-700 hover:bg-gray-400 h-full w-20 rounded-r cursor-pointer"
+                       
+                  >
+                  <span    @click="increment()" class="h-full w-20 m-auto text-2xl font-thin">+</span>
+                </a>
+                </div>
+              </div>
+              <MessageError v-if="errorCount" :message="errorCount" class="block" />
             </div>
           </div>
           <div class="flex mt-4 flex-row justify-end">
@@ -158,97 +176,88 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-
 import MessageError from '../components/MessageError.vue'
+import { useUsuarioStore } from '../stores/'
+import { UserService } from '@/services/UsuarioService';
+import type { UserDTO } from '@/dtos/user-dto';
 
-const email = ref('')
-const password = ref('')
-const perfil = ref('pais')
-const nrFilhos = ref(0)
-const qtFeedback = ref(0)
-const count = ref(0)
+const store = useUsuarioStore()
+const userService = new UserService();
+var usuario = store.usuario
+
+const perfil = ref(usuario.profile.toLocaleLowerCase())
+var count = ref(perfil.value == "professor" ? usuario.feedback_frequence : usuario.children.length)
 
 const errorEmail = ref('')
 const errorPassword = ref('')
 const errorNrFilhos = ref('')
-const errorQtFeedback = ref('')
+const errorCount = ref('')
+const errorNome = ref('')
 
-const nomesFilhos = ref(Array.from({ length: nrFilhos.value }, () => '')) // Inicializa um array vazio de nomes dos filhos
+let listFilhos : string[] = usuario.children.split(" ") // Inicializa um array vazio de nomes dos filhos
 
 const validateEmail = () => {
-  if (email.value.length == 0 || !/^\S+@\S+\.\S+$/.test(email.value)) {
+  if (usuario.email.length == 0 || !/^\S+@\S+\.\S+$/.test(usuario.email)) {
     errorEmail.value = 'Email inválido, insira novamente.'
-    return true
-  } else {
-    errorEmail.value = ''
-  }
+    return false;
+  } 
+  return true;
 }
 
 const validatePassword = () => {
-  if (password.value.length == 0 || password.value.length < 5) {
+  if (usuario.password.length == 0 || usuario.password.length < 5) {
     errorPassword.value = 'Senha inválida, insira novamente.'
-  } else {
-    errorPassword.value = ''
-  }
+    return false;
+  } 
+  return true;
 }
 
-const validateNrFilhos = () => {
-  if (nrFilhos.value == 0) {
-    errorNrFilhos.value = 'Número de filhos deve ser maior que zero.'
-  } else {
-    errorNrFilhos.value = ''
-  }
-}
-
-const validateQtFeedback = () => {
-  if (qtFeedback.value == 0) {
-    errorQtFeedback.value = 'Número de feedback deve ser maior que zero.'
-  } else {
-    errorQtFeedback.value = ''
-  }
+const validateCount = () => {
+  if (count.value == 0) {
+    errorCount.value = perfil.value.toLocaleLowerCase() == "professor" ? 'Número de feedback deve ser maior que zero.' : 'Número de filhos deve ser maior que zero.'
+    return false;
+  } 
+  return true;
 }
 
 const cleanErrors = () => {
   errorEmail.value = ''
   errorPassword.value = ''
-  errorNrFilhos.value = ''
-  errorQtFeedback.value = ''
+  errorCount.value = ''
 }
 
-const editarPefil = () => {
+const editUser = () => {
   cleanErrors()
-  validateEmail()
-  validatePassword()
-  if (errorEmail.value === '' && errorPassword.value === '') {
-    if (perfil.value == 'pais') {
-      validateNrFilhos()
-      if (errorNrFilhos.value === '') {
-        console.log('editar')
-      }
-    } else {
-      validateQtFeedback()
-      if (errorQtFeedback.value === '') {
-        console.log('editar')
-      }
+  if (validateEmail() && validatePassword() && validateCount()) {
+   update()
+  }
+}
+
+async function update() {
+  try {
+    const userData : UserDTO = {
+      id:usuario.id,
+      email: usuario.email.toString(),
+      password: usuario.password.toString(),
+      name: usuario.name.toString(),
+      profile : usuario.profile.toString(),
+      feedback_frequence: usuario.feedback_frequence,
+      children: listFilhos.join(" ")
+
     }
+    const usuarioCriado =  await userService.updateUser(userData)
+    store.updateUser(store.$state, usuarioCriado)
+
+  } catch (error) {
+    
   }
 }
 
 const decrement = () => {
-  count.value = Math.max(1, nrFilhos.value - 1)
-  perfilParamCount()
+  count.value = Math.max(1, count.value - 1)
 }
 
 const increment = () => {
   count.value += 1
-  perfilParamCount()
-}
-
-const perfilParamCount = () => {
-  if (perfil.value === 'pais') {
-    nrFilhos.value = count.value
-  } else {
-    qtFeedback.value = count.value
-  }
 }
 </script>

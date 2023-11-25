@@ -7,6 +7,7 @@ import PerfilUsuarioView from '@/views/PerfilUsuarioView.vue'
 import FeedbackRequestView from '@/views/FeedbackRequestView.vue'
 import FeedbackResponseView from '@/views/FeedbackResponseView.vue'
 import PesquisaProfessorView from '@/views/PesquisaProfessorView.vue'
+import { useUsuarioStore } from '../stores/index'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -24,34 +25,57 @@ const router = createRouter({
     {
       path: '/home',
       name: 'home',
-      component: HomeView
+      component: HomeView,
+      meta: { requiresAuth: true },
     },
     {
       path: '/pais',
       name: 'pais',
-      component: PesquisaPaisView
+      component: PesquisaPaisView,
+      meta: { requiresAuth: true },
     },
     {
       path: '/professores',
       name: 'professores',
-      component: PesquisaProfessorView
+      component: PesquisaProfessorView,
+      meta: { requiresAuth: true },
     },
     {
       path: '/perfil',
       name: 'perfil',
-      component: PerfilUsuarioView
+      component: PerfilUsuarioView,
+      meta: { requiresAuth: true},
     },
     {
       path: '/feedback/solicitacao',
       name: 'solicitar-feedback',
-      component: FeedbackRequestView
+      component: FeedbackRequestView,
+      meta: { requiresAuth: true },
     },
     {
-      path: '/feedback/resposta',
+      path: '/feedback/resposta/:id',
       name: 'responder-feedback',
-      component: FeedbackResponseView
+      component: FeedbackResponseView,
+      meta: { requiresAuth: true },
     }
   ]
 })
+
+router.beforeEach(async (to, from, next) => {
+  if (to.meta.requiresAuth) {
+    const store = useUsuarioStore();
+    if (!store.isAuthenticated) {
+      next('/');
+      return;
+    }
+  }
+
+  if (to.name === 'Login' || to.name === 'Cadastro') {
+    next();
+    return;
+  }
+
+  next();
+});
 
 export default router

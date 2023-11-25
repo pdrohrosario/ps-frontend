@@ -5,9 +5,14 @@
       <form @submit.prevent="enviarSolicitacao()">
         <div class="text-gray-900 text-xl text-start font-light font-inter mt-5">Professor:</div>
         <div class="flex w-full flex-row justify-items-start">
-          <VueMultiselect v-model="professor" :options="options"> </VueMultiselect>
+          <VueMultiselect v-model="professor" :options="listProfessores"> </VueMultiselect>
         </div>
         <MessageError v-if="errorProfessor" :message="errorProfessor" />
+        <div class="text-gray-900 text-xl text-start font-light font-inter mt-5">Aluno:</div>
+        <div class="flex w-full flex-row justify-items-start">
+          <VueMultiselect v-model="aluno" :options="listAlunos"> </VueMultiselect>
+        </div>
+        <MessageError v-if="errorAluno" :message="errorAluno" />
         <div class="text-gray-900 text-xl text-start font-light font-inter mt-5">Solicitação:</div>
         <div class="flex w-full flex-row justify-items-start">
           <textarea
@@ -39,33 +44,59 @@
 import { ref, onMounted } from 'vue'
 import MessageError from '@/components/MessageError.vue'
 import VueMultiselect from 'vue-multiselect'
+import { useUsuarioStore } from '../stores/'
+import type { UserDTO } from '@/dtos/user-dto';
+import { FeedbackService } from '@/services/FeedbackService';
+import type { FeedbackCreationDTO } from '@/dtos/feedback-dto';
+
+const store = useUsuarioStore()
+
+const usuario = store.usuario
+const feedbackService = new FeedbackService()
+const listProfessores = ref<UserDTO[]>([])
+
+const listAlunos = ref<String[]>([])
+
+listAlunos.value.push(...usuario.children.split(" "));
 
 const professor = ref('')
 const solicitacao = ref('')
+const aluno = ref('')
 
 const errorProfessor = ref('')
 const errorSolicitacao = ref('')
-
-const options = ['list', 'of', 'options']
+const errorAluno = ref('')
 
 const validateProfessor = () => {
   if (professor.value.length == 0) {
     errorProfessor.value = 'Selecione um professor para avaliar o feedback.'
-  } else {
-    errorSolicitacao.value = ''
+    return false;
   }
+
+  return true;
+}
+
+const validateAluno = () => {
+  if (aluno.value.length == 0) {
+    errorAluno.value = 'Selecione um aluno para o feedback.'
+    return false;
+  }
+
+  return true;
 }
 
 const validateSolicitacao = () => {
   if (solicitacao.value.length == 0) {
     errorSolicitacao.value = 'Preencha o feedback desejado para professor.'
-  } else {
-    errorSolicitacao.value = ''
-  }
+    return false;
+  } 
+
+  return true;
 }
 
 const cleanErrors = () => {
   errorProfessor.value = ''
+  errorAluno.value = ''
   errorSolicitacao.value = ''
 }
 
@@ -73,15 +104,34 @@ const cleanInput = () => {
   cleanErrors()
   professor.value = ''
   solicitacao.value = ''
+  aluno.value = ''
 }
 
 const enviarSolicitacao = () => {
   cleanErrors()
-  validateProfessor()
-  validateSolicitacao()
-  if (errorProfessor.value === '' && errorSolicitacao.value === '') {
-    console.log('enviar')
+  
+  if (validateProfessor() && validateSolicitacao() && validateAluno()) {
+    
   }
 }
+
+const professorId = ref(1);
+async function createFeedback(){
+  try{
+
+    const feedbackDto : FeedbackCreationDTO = {
+      question: solicitacao.value.toString(), 
+      child: aluno.value.toString(),
+      parentId: usuario.id,
+      teacherId: professorId.value,
+    } 
+
+    const feedback = await feedbackService.createFeedback(feedbackDto);
+  }
+  catch (e) {
+  }
+}
+
+
 </script>
 <style src="vue-multiselect/dist/vue-multiselect.css"></style>
