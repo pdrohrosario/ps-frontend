@@ -10,6 +10,11 @@
             <MessageError v-if="errorEmail" :message="errorEmail" class="block" />
           </div>
           <div class="mt-5">
+            <div class="text-gray-900 text-2xl font-normal font-inter block">Nome:</div>
+            <input type="password" class="w-[396px] h-[38px]" v-model="nome" />
+            <MessageError v-if="errorNome" :message="errorNome" class="block" />
+          </div>
+          <div class="mt-5">
             <div class="text-gray-900 text-2xl font-normal font-inter block">Senha:</div>
             <input type="password" class="w-[396px] h-[38px]" v-model="password" />
             <MessageError v-if="errorPassword" :message="errorPassword" class="block" />
@@ -50,7 +55,6 @@
                   </button>
                 </div>
               </div>
-              <MessageError v-if="errorNrFilhos" :message="errorNrFilhos" class="block" />
               <div class="mt-5" v-for="index in nrFilhos">
                 <div class="text-gray-900 text-1xl font-normal font-inter block">
                   Filho: {{ index }}:
@@ -68,31 +72,32 @@
               </div>
               <div class="custom-number-input h-10 w-32">
                 <div class="flex flex-row h-10 w-full rounded-lg relative bg-transparent mt-1">
-                  <button
-                    @click="decrement"
+                  <a
+                    @click="decrement()"
                     class="bg-light-gray text-gray-600 hover:text-gray-700 hover:bg-gray-400 h-full w-20 rounded-l cursor-pointer outline-none"
                   >
                     <span class="m-auto text-2xl font-thin">−</span>
-                  </button>
+                </a>
                   <input
                     v-model="count"
                     type="number"
                     class="outline-none focus:outline-none text-center w-full bg-light-gray font-semibold text-md hover:text-black focus:text-black md:text-base cursor-default flex items-center text-gray-700 outline-none"
                     name="custom-input-number"
                   />
-                  <button
-                    @click="increment"
+                  <a
+                    @click="increment()"
                     class="bg-light-gray text-gray-600 hover:text-gray-700 hover:bg-gray-400 h-full w-20 rounded-r cursor-pointer"
                   >
                     <span class="m-auto text-2xl font-thin">+</span>
-                  </button>
+                </a>
                 </div>
               </div>
-              <MessageError v-if="errorQtFeedback" :message="errorQtFeedback" class="block" />
             </div>
+            <MessageError v-if="errorCount" :message="errorCount" class="block" />
           </div>
+          <MessageError v-if="errorCadastro" :message="errorCadastro" class="block" />
           <button
-            class="w-[396px] h-[58px] bg-gray-800 rounded-[5px] text-zinc-100 text-[28px] font-normal font-['Inter']"
+            class="w-[396px] h-[58px] bg-gray-800 rounded-[5px] text-zinc-100 text-[28px] font-normal font-inter"
             type="submit"
           >
             Adicionar
@@ -105,8 +110,12 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-
+import { UserService } from '@/services/UsuarioService';
+import { UserCreationDTO, UserDTO } from "src/dtos/user-dto";
 import MessageError from '../components/MessageError.vue'
+import { useRouter } from 'vue-router';
+const router = useRouter();
+
 
 const email = ref('')
 const password = ref('')
@@ -114,99 +123,107 @@ const perfil = ref('')
 const nrFilhos = ref(0)
 const qtFeedback = ref(0)
 const count = ref(0)
+const nome = ref('')
 
+const errorNome = ref('')
 const errorEmail = ref('')
 const errorPassword = ref('')
-const errorNrFilhos = ref('')
-const errorQtFeedback = ref('')
+const errorCount = ref('')
 const errorPerfil = ref('')
+const errorCadastro = ref('');
 
-const nomesFilhos = ref(Array.from({ length: nrFilhos.value }, () => '')) // Inicializa um array vazio de nomes dos filhos
+const nomesFilhos = ref(Array.from({ length: count.value }, () => '')) // Inicializa um array vazio de nomes dos filhos
+
+const userService : UserService = new UserService;
+
+const validatePerfil = () => {
+  if (perfil.value.length == 0) {
+    errorPerfil.value = 'Necessário informar um perfil.'
+    return false
+  } 
+
+  return true
+}
 
 const validateEmail = () => {
   if (email.value.length == 0 || !/^\S+@\S+\.\S+$/.test(email.value)) {
     errorEmail.value = 'Email inválido, insira novamente.'
-    return true
-  } else {
-    errorEmail.value = ''
-  }
+    return false;
+  } 
+  return true;
 }
 
 const validatePassword = () => {
   if (password.value.length == 0 || password.value.length < 5) {
     errorPassword.value = 'Senha inválida, insira novamente.'
-  } else {
-    errorPassword.value = ''
-  }
+    return false;
+  } 
+  return true;
 }
 
-const validateNrFilhos = () => {
-  if (nrFilhos.value == 0) {
-    errorNrFilhos.value = 'Número de filhos deve ser maior que zero.'
-  } else {
-    errorNrFilhos.value = ''
-  }
+const validateCount = () => {
+  if (count.value == 0) {
+    errorCount.value = perfil.value.toLocaleLowerCase() == "professor" ? 'Número de feedback deve ser maior que zero.' : 'Número de filhos deve ser maior que zero.'
+    return false;
+  } 
+  return true;
 }
 
-const validateQtFeedback = () => {
-  if (qtFeedback.value == 0) {
-    errorQtFeedback.value = 'Número de feedback deve ser maior que zero.'
-  } else {
-    errorQtFeedback.value = ''
-  }
-}
-
-const validatePerfil = () => {
-  if (perfil.value.length == 0) {
-    errorPerfil.value = 'Necessário informar um perfil.'
-  } else {
-    errorPerfil.value = ''
-  }
-}
 
 const cleanErrors = () => {
   errorEmail.value = ''
   errorPassword.value = ''
-  errorNrFilhos.value = ''
   errorPerfil.value = ''
-  errorQtFeedback.value = ''
+  errorCount.value = ''
+  errorCadastro.value = ''
 }
 
 const salvarPefil = () => {
   cleanErrors()
-  validateEmail()
-  validatePassword()
-  validatePerfil()
-  if (errorEmail.value === '' && errorPassword.value === '' && errorPerfil.value === '') {
-    if (perfil.value == 'pais') {
-      validateNrFilhos()
-      if (errorNrFilhos.value === '') {
-        console.log('editar')
-      }
-    } else {
-      validateQtFeedback()
-      if (errorQtFeedback.value === '') {
-        console.log('editar')
-      }
+  if (validateEmail() && validatePassword() && validatePerfil() && validateCount()) {
+    //validarEmailCadastro(email.value)
+    if(errorCadastro.value === '') {
+      const usuarioInfoCadastro : UserCreationDTO = {
+        email : email.value,
+        name : nome.value,
+        profile: perfil.value,
+        children: nomesFilhos.value.join(" "),
+        feedback_frequence: perfil.value == 'professor' ? count.value : 0,
+        password: password.value,
+      } 
+      criarUsuario(usuarioInfoCadastro)
     }
+   
   }
 }
 
 const decrement = () => {
-  count.value = Math.max(1, nrFilhos.value - 1)
-  perfilParamCount()
+  count.value = Math.max(1, count.value - 1)
 }
 
 const increment = () => {
   count.value += 1
-  perfilParamCount()
 }
 
-const perfilParamCount = () => {
-  if (perfil.value === 'pais') {
-    nrFilhos.value = count.value
-  } else {
-    qtFeedback.value = count.value
+async function validarEmailCadastro(email: string) {
+  try {
+    const usuarioJaCadastrado =  await userService.getUserByEmail(email);
+    if(usuarioJaCadastrado){
+      errorCadastro.value = 'Email de usuário já cadastrado, utilize outro email'
+    }
+  } catch (error) {
+    errorCadastro.value = 'Erro ao validar o email de cadastro do usuário'
   }
 }
+
+async function criarUsuario(userData : UserCreationDTO) {
+  try {
+    const usuarioCriado = userService.createUser(userData)
+    router.push({ name: 'login' });
+  } catch (error) {
+    errorCadastro.value = "Erro ao logar, verifique as informações de login";
+  }
+}
+
+
 </script>

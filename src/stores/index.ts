@@ -4,14 +4,14 @@ export const useUsuarioStore = defineStore('usuario', {
   state: () => {
     return {
       isAuthenticated: false,
-      usuario: {
+      usuario:  {
         id: 0,
-        nome: 'Roberto',
-        email: 'teste@gmail.com',
-        password: 'teste',
-        perfil: 'pais',
-        frequenciaFeedbacks: 0,
-        filhos: ''
+        email: '',
+        name: '',
+        profile: '',
+        children: '',
+        feedback_frequence: 0,
+        password: '',
       }
     }
   },
@@ -20,16 +20,19 @@ export const useUsuarioStore = defineStore('usuario', {
       state.isAuthenticated = true
       state.usuario = userData
     },
+    updateUser(state, userDate){
+      state.usuario = userData
+    },
     logout(state) {
       state.isAuthenticated = false
       state.usuario = {
         id: 0,
-        nome: '',
         email: '',
+        name: '',
+        profile: '',
+        children: [],
+        feedback_frequence: 0,
         password: '',
-        perfil: '',
-        frequenciaFeedbacks: 0,
-        filhos: ''
       }
     }
   }

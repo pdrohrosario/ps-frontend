@@ -2,7 +2,7 @@
   <div class="bg-gray-800 font-inter">
     <nav class="px-5 py-3 mx-auto md:flex md:justify-between md:items-center">
       <div class="flex text-[20px]">
-        <router-link to="/"> <img class="w-[119px]" src="../assets/images/logo.png" /></router-link>
+        <router-link to="/home"> <img class="w-[119px]" src="../assets/images/logo.png" /></router-link>
         <ul
           v-show="props.habilitarIcones.valueOf()"
           class="flex-col mt-8 space-y-4 md:flex md:space-y-0 md:flex-row md:items-center md:space-x-10 md:mt-0"
@@ -43,20 +43,23 @@
             </router-link>
           </li>
           <li class="text-white hover:text-neutral-400">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="w-8 h-8"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"
-              />
-            </svg>
+            <button @click="logout">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="w-8 h-8"
+                
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"
+                />
+              </svg>
+            </button>
           </li>
         </ul>
       </div>
@@ -65,6 +68,18 @@
 </template>
 
 <script setup lang="ts">
+import { useUsuarioStore } from '../stores/index'
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+const store = useUsuarioStore();
+
+const perfil = store.usuario.profile.toLocaleLowerCase();
+
+const logout = () => {
+  store.logout(store.$state);
+  router.push({ name: 'login' });
+}
 
 const props = defineProps({
   habilitarIcones: Boolean,

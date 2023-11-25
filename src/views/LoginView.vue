@@ -27,6 +27,7 @@
             </div>
             <input type="password" class="w-[396px] h-[38px]" v-model="password" />
             <MessageError v-if="errorPassword" :message="errorPassword" class="block" />
+            <MessageError v-if="errorAutenticacao" :message="errorAutenticacao" class="block" />
           </div>
           <div class="text-start py-3">
             <router-link class="text-gray-900 text-xl font-light font-inter" to="/cadastro"
@@ -49,14 +50,23 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-
+import { UserService } from '@/services/UsuarioService';
+import { UserCreationDTO, UserDTO } from "src/dtos/user-dto";
 import MessageError from '../components/MessageError.vue'
+import { useUsuarioStore } from '../stores/'
+import { useRouter } from 'vue-router';
+const router = useRouter();
+
+const store = useUsuarioStore();
+
+const userService : UserService = new UserService;
 
 const email = ref('')
 const password = ref('')
-
 const errorEmail = ref('')
 const errorPassword = ref('')
+const errorAutenticacao = ref('')
+
 
 const validateEmail = () => {
   if (email.value.length == 0 || !/^\S+@\S+\.\S+$/.test(email.value)) {
@@ -77,6 +87,7 @@ const validatePassword = () => {
 const cleanErrors = () => {
   errorEmail.value = ''
   errorPassword.value = ''
+  errorAutenticacao.value = ''
 }
 
 const login = () => {
@@ -84,7 +95,18 @@ const login = () => {
   validateEmail()
   validatePassword()
   if (errorEmail.value === '' && errorPassword.value === '') {
-    console.log('editar')
+    fazerLogin(email.value, password.value)
   }
 }
+
+async function fazerLogin(email : string, password : string) {
+  try {
+    const user = await userService.loginUsuario(email, password);
+    store.login(store.$state,user);
+    router.push({ name: 'home' });
+  } catch (error) {
+    errorAutenticacao.value = "Erro ao logar, verifique as informações de login";
+  }
+}
+
 </script>

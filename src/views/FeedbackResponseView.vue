@@ -2,7 +2,7 @@
   <div class="bg-zinc-100 w-3/4 mt-20 mb-20 rounded-[10px] font-inter shadow border">
     <div class="p-10">
       <div class="text-gray-900 text-4xl text-start font-light font-inter">Feedback:</div>
-      <form @submit.prevent="editarFeebdack()">
+      <form @submit.prevent="updateFeebdack()">
         <div v-if="perfil == 'pais'">
           <div class="text-gray-900 text-xl text-start font-light font-inter mt-5">Professor:</div>
           <div class="flex flex-row justify-items-start">
@@ -10,6 +10,7 @@
               type="text"
               class="w-full h-[45px] rounded-[5px] border"
               v-bind:readonly="true"
+              v-model="user.name"
             />
           </div>
         </div>
@@ -20,6 +21,7 @@
               type="text"
               class="w-full h-[45px] rounded-[5px] border"
               v-bind:readonly="true"
+              v-model="user.name"
             />
           </div>
         </div>
@@ -30,6 +32,7 @@
               type="text"
               class="w-full h-[45px] rounded-[5px] border"
               v-bind:readonly="true"
+              v-model="feedback.child"
             />
           </div>
         </div>
@@ -38,7 +41,8 @@
           <textarea
             type="text"
             class="w-full min-h-[200px] rounded-[5px] border"
-            v-bind:readonly="true"
+            v-bind:readonly="true" 
+            v-model="feedback.question"
           ></textarea>
         </div>
         <div v-if="perfil == 'professor' || resposta.trim() != ''">
@@ -46,7 +50,7 @@
           <div class="flex flex-row justify-items-start">
             <textarea
               type="text"
-              v-model="resposta"
+              v-model="feedback.response"
               class="w-full min-h-[200px] rounded-[5px] border"
               :readonly="!ativo"
             ></textarea>
@@ -81,26 +85,38 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import MessageError from '@/components/MessageError.vue'
-import type Usuario from './models/Usuario'
 import { useUsuarioStore } from '../stores/'
+import { useRoute } from 'vue-router';
+import { FeedbackService } from '@/services/FeedbackService';
+import type { FeedbackDTO } from '@/dtos/feedback-dto';
+import { UserService } from '@/services/UsuarioService';
+import type { UserDTO } from '@/dtos/user-dto';
 
+loadUserFeedbacks();
+loadParentOrProfessorName();
+
+const route = useRoute();  
+const feedbackId = parseInt(route.params.id.toString()); 
+var feedback : FeedbackDTO;
 const store = useUsuarioStore()
+const feedbackService = new FeedbackService();
 
-const professor = ref('')
-const solicitacao = ref('')
 const resposta = ref('')
-const usuario: Usuario = store.usuario
-const perfil = ref(usuario.perfil)
-
+const usuario = store.usuario
+const perfil = ref(usuario.profile.toLocaleLowerCase())
+let user : UserDTO;
+const userService = new UserService()
 const ativo = ref(true)
 const errorResposta = ref('')
+
 
 const validateResposta = () => {
   if (resposta.value.trim() == '') {
     errorResposta.value = 'Preencha o campo resposta do feedback solicitado.'
-  } else {
-    errorResposta.value = ''
-  }
+    return false
+  } 
+
+  return true
 }
 
 const cleanErrors = () => {
@@ -112,11 +128,38 @@ const cleanInput = () => {
   resposta.value = ''
 }
 
-const editarFeebdack = () => {
+const updateFeebdack = () => {
   cleanErrors()
-  validateResposta()
-  if (errorResposta.value === '') {
-    console.log('enviar')
+  if (validateResposta()) {
+    update()
   }
+}
+
+async function loadUserFeedbacks() {
+  try {
+    feedback = await feedbackService.findFeebacksById(feedbackId);
+  } catch (error) {
+    
+  }
+}
+
+async function loadParentOrProfessorName() {
+  try {
+    const userId = perfil.value == 'pais' ? feedback.parentId : feedback.teacherid 
+    user = await userService.getUserById(userId);
+  } catch (error) {
+    
+  }
+}
+
+async function update() {
+  try {
+
+
+      const feedback = await feedbackService.updateUser(feedback);
+
+    } catch (error) {
+      
+    }
 }
 </script>

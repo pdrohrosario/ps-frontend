@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-zinc-100 w-3/4 h-[500px] mt-20 rounded-[10px] font-inter shadow border">
+  <div class="bg-zinc-100 w-3/4  mt-20 rounded-[10px] font-inter shadow border">
     <div class="p-10">
       <div class="text-gray-900 text-4xl text-start font-light font-inter">Pesquisar Pais:</div>
       <div class="flex flex-row justify-items-start">
@@ -26,23 +26,24 @@
             <thead class="font-medium text-[18px] text-black uppercase bg-dark-gray-table">
               <tr>
                 <th scope="col" class="px-6 py-3">ID</th>
-                <th scope="col" class="pr-80 py-3">Nome</th>
+                <th scope="col" class="pr-60 py-3">Nome</th>
+                <th scope="col" class="pr-60 py-3">Filhos</th>
                 <th scope="col" class="px-20 py-3"></th>
               </tr>
             </thead>
             <tbody>
-              <tr class="bg-light-gray border-b" v-for="usuario in listUsuario">
+              <tr class="bg-light-gray border-b" v-for="pais in listUsuario">
                 <td scope="row" class="px-6 py-4">
-                  {{ usuario.id }}
+                  {{ pais.id.valueOf() }}
                 </td>
-                <td class="pr-90 py-4">{{ usuario.nome }}</td>
+                <td class="pr-90 py-4">{{ pais.name }}</td>
+                <td class="pr-90 py-4">{{ pais.children}}</td>
                 <td class="px-6 py-4">
                   <div
                     class="flex-col mt-8 space-y-4 md:flex md:space-y-0 md:flex-row md:items-center md:space-x-10 md:mt-0"
                   >
-                    
+                    <a @click="adicionarContato(pais.id, usuario.id)">
                       <svg
-                      @click="adicionarPais"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
@@ -56,6 +57,7 @@
                         d="M12 4.5v15m7.5-7.5h-15"
                       />
                     </svg>
+                    </a>
                    
                   </div>
                 </td>
@@ -71,7 +73,21 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import MessageError from '@/components/MessageError.vue'
-import type Usuario from '@/models/Usuario';
+import { UserService } from '@/services/UsuarioService';
+import { ContatoService } from '@/services/ContatoService';
+import { UserDTO } from "src/dtos/user-dto";
+import { useRouter } from 'vue-router';
+import { ContactCreationDTO } from '@/dtos/contato-dto';
+import { useUsuarioStore } from '../stores/'
+
+const store = useUsuarioStore();
+const usuario = store.usuario;
+
+const listUsuario = ref<UserDTO[]>([])
+
+const router = useRouter();
+const userService = new UserService();
+const contatoService = new ContatoService();
 
 const pesquisa = ref('')
 
@@ -93,7 +109,8 @@ const buscarPais = () => {
   cleanErrors()
   validatePesquisa()
   if (errorPesquisa.value === '') {
-    console.log('buscar')
+    listUsuario.value = []
+    pesquisarPais(pesquisa.value);
   }
 }
 
@@ -102,18 +119,26 @@ const cleanPesquisa = () => {
   pesquisa.value = ''
 }
 
-const adicionarPais = () => {}
+async function pesquisarPais(name : string) {
+  try {
+    const pais = await userService.getParentByName(name);
+    listUsuario.value.push(...pais)
+  } catch (error) {
+    
+  }
+}
 
-const novoUsuario = ref<Usuario>({
-  id: 0,
-      nome: 'Roberto',
-      email: 'teste@gmail.com',
-      password: 'teste',
-      perfil: 'professor',
-      frequenciaFeedbacks:0,
-      filhos:''
-})
+async function adicionarContato(paiId : number, professorId : number) {
+  try {
+    const contato : ContactCreationDTO = {
+      parentId : paiId,
+      teacherId : professorId
+    };
+    const novoContato = await contatoService.criarContato(contato);
+    console.log(novoContato)
+  } catch (error) {
+    
+  }
+}
 
-const listUsuario = ref<Usuario[]>([])
-listUsuario.value.push(novoUsuario.value)
 </script>

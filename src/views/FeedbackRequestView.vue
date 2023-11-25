@@ -44,12 +44,20 @@
 import { ref, onMounted } from 'vue'
 import MessageError from '@/components/MessageError.vue'
 import VueMultiselect from 'vue-multiselect'
-import type Usuario from '@/models/Usuario'
 import { useUsuarioStore } from '../stores/'
+import type { UserDTO } from '@/dtos/user-dto';
+import { FeedbackService } from '@/services/FeedbackService';
+import type { FeedbackCreationDTO } from '@/dtos/feedback-dto';
 
 const store = useUsuarioStore()
 
-const usuario: Usuario = store.usuario
+const usuario = store.usuario
+const feedbackService = new FeedbackService()
+const listProfessores = ref<UserDTO[]>([])
+
+const listAlunos = ref<String[]>([])
+
+listAlunos.value.push(...usuario.children.split(" "));
 
 const professor = ref('')
 const solicitacao = ref('')
@@ -59,34 +67,36 @@ const errorProfessor = ref('')
 const errorSolicitacao = ref('')
 const errorAluno = ref('')
 
-const options = ['list', 'of', 'options']
-
 const validateProfessor = () => {
   if (professor.value.length == 0) {
     errorProfessor.value = 'Selecione um professor para avaliar o feedback.'
-  } else {
-    errorSolicitacao.value = ''
+    return false;
   }
+
+  return true;
 }
 
 const validateAluno = () => {
   if (aluno.value.length == 0) {
     errorAluno.value = 'Selecione um aluno para o feedback.'
-  } else {
-    errorAluno.value = ''
+    return false;
   }
+
+  return true;
 }
 
 const validateSolicitacao = () => {
   if (solicitacao.value.length == 0) {
     errorSolicitacao.value = 'Preencha o feedback desejado para professor.'
-  } else {
-    errorSolicitacao.value = ''
-  }
+    return false;
+  } 
+
+  return true;
 }
 
 const cleanErrors = () => {
   errorProfessor.value = ''
+  errorAluno.value = ''
   errorSolicitacao.value = ''
 }
 
@@ -99,16 +109,29 @@ const cleanInput = () => {
 
 const enviarSolicitacao = () => {
   cleanErrors()
-  validateProfessor()
-  validateSolicitacao()
-  validateAluno()
-  if (errorProfessor.value === '' && errorSolicitacao.value === '') {
-    console.log('enviar')
+  
+  if (validateProfessor() && validateSolicitacao() && validateAluno()) {
+    
   }
 }
 
-const listProfessores = ref<Usuario[]>([])
+const professorId = ref(1);
+async function createFeedback(){
+  try{
 
-const listAlunos = ref<String[]>([])
+    const feedbackDto : FeedbackCreationDTO = {
+      question: solicitacao.value.toString(), 
+      child: aluno.value.toString(),
+      parentId: usuario.id,
+      teacherId: professorId.value,
+    } 
+
+    const feedback = await feedbackService.createFeedback(feedbackDto);
+  }
+  catch (e) {
+  }
+}
+
+
 </script>
 <style src="vue-multiselect/dist/vue-multiselect.css"></style>
