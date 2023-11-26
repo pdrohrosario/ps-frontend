@@ -8,6 +8,9 @@ export class ContatoService {
         const url = `${this.backendUrl}/contact`
         const response = await fetch(url, {
           method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
           body: JSON.stringify(contato),
         });
         const data = await response.json();
