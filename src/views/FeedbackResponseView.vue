@@ -1,6 +1,6 @@
 <template>
   <div class="bg-zinc-100 w-3/4 mt-20 mb-20 rounded-[10px] font-inter shadow border">
-    <div class="p-10">
+    <div class="p-10" v-if="!loading && parentOrProfessor != null">
       <div class="text-gray-900 text-4xl text-start font-light font-inter">Feedback:</div>
       <form @submit.prevent="updateFeebdack()">
         <div v-if="perfil == 'pais'">
@@ -10,7 +10,7 @@
               type="text"
               class="w-full h-[45px] rounded-[5px] border"
               v-bind:readonly="true"
-              v-model="user.name"
+              v-model="parentOrProfessor.name"
             />
           </div>
         </div>
@@ -21,7 +21,7 @@
               type="text"
               class="w-full h-[45px] rounded-[5px] border"
               v-bind:readonly="true"
-              v-model="user.name"
+              v-model="parentOrProfessor.name"
             />
           </div>
         </div>
@@ -41,8 +41,7 @@
           <textarea
             type="text"
             class="w-full min-h-[200px] rounded-[5px] border"
-            v-bind:readonly="true" 
-            v-model="feedback.question"
+            v-bind:readonly="true"
           ></textarea>
         </div>
         <div v-if="perfil == 'professor' || resposta.trim() != ''">
@@ -50,7 +49,6 @@
           <div class="flex flex-row justify-items-start">
             <textarea
               type="text"
-              v-model="feedback.response"
               class="w-full min-h-[200px] rounded-[5px] border"
               :readonly="!ativo"
             ></textarea>
@@ -59,22 +57,35 @@
         </div>
         <div
           v-if="perfil == 'professor' && ativo"
-          class="flex justify-start py-3 flex-row sm:justify-items-start justify-items-end"
+          class="flex justify-between py-3 flex-row sm:justify-items-start justify-items-end"
         >
-          <button
-            @click="cleanInput"
-            class="w-[150px] h-[48px] bg-red-800 mr-3 rounded-[5px] text-zinc-100 text-[20px] font-normal font-inter']"
-          >
-            Limpar
-          </button>
-          <button
-            type="submit"
-            class="w-[150px] h-[48px] bg-gray-800 rounded-[5px] text-zinc-100 text-[20px] font-normal font-inter"
-          >
-            Enviar
-          </button>
+          <div>
+            <button
+              @click="rejeitarFeedback"
+              class="w-[210px] h-[48px] bg-red-800 mr-3 rounded-[5px] text-zinc-100 text-[20px] font-normal font-inter']"
+            >
+              Rejeitar Feedback
+            </button>
+          </div>
+          <div>
+            <button
+              @click="cleanInput"
+              class="w-[150px] h-[48px] bg-red-800 mr-3 rounded-[5px] text-zinc-100 text-[20px] font-normal font-inter']"
+            >
+              Limpar
+            </button>
+            <button
+              type="submit"
+              class="w-[150px] h-[48px] bg-gray-800 rounded-[5px] text-zinc-100 text-[20px] font-normal font-inter"
+            >
+              Enviar
+            </button>
+          </div>
         </div>
-        <div class="mt-2" v-if="perfil == 'pais' && resposta.trim() == ''">
+        <div
+          class="mt-2"
+          v-if="perfil == 'pais' && resposta.trim() == '' && feedback.active == true"
+        >
           <MessageError :message="'Feedback em análise, aguarde a resposta do professor!'" />
         </div>
       </form>
@@ -83,38 +94,39 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { onMounted, onBeforeMount, ref } from 'vue'
 import MessageError from '@/components/MessageError.vue'
 import { useUsuarioStore } from '../stores/'
-import { useRoute } from 'vue-router';
-import { FeedbackService } from '@/services/FeedbackService';
-import type { FeedbackDTO } from '@/dtos/feedback-dto';
-import { UserService } from '@/services/UsuarioService';
-import type { UserDTO } from '@/dtos/user-dto';
+import { useRoute, useRouter } from 'vue-router'
+import { FeedbackService } from '@/services/FeedbackService'
+import { FeedbackDTO } from '@/dtos/feedback-dto'
+import { UserService } from '@/services/UsuarioService'
+import type { UserDTO } from '@/dtos/user-dto'
 
-loadUserFeedbacks();
-loadParentOrProfessorName();
+onBeforeMount(() => {
+  loadFeedbackInfo()
+})
 
-const route = useRoute();  
-const feedbackId = parseInt(route.params.id.toString()); 
-var feedback : FeedbackDTO;
+const route = useRoute()
+const feedbackId = parseInt(route.params.id.toString())
+var feedback: FeedbackDTO
 const store = useUsuarioStore()
-const feedbackService = new FeedbackService();
-
+const feedbackService = new FeedbackService()
+const loading = ref(true)
 const resposta = ref('')
 const usuario = store.usuario
 const perfil = ref(usuario.profile.toLocaleLowerCase())
-let user : UserDTO;
+var parentOrProfessor: UserDTO
 const userService = new UserService()
 const ativo = ref(true)
 const errorResposta = ref('')
-
+const router = useRouter()
 
 const validateResposta = () => {
   if (resposta.value.trim() == '') {
     errorResposta.value = 'Preencha o campo resposta do feedback solicitado.'
     return false
-  } 
+  }
 
   return true
 }
@@ -135,31 +147,26 @@ const updateFeebdack = () => {
   }
 }
 
-async function loadUserFeedbacks() {
+async function rejeitarFeedback() {
   try {
-    feedback = await feedbackService.findFeebacksById(feedbackId);
-  } catch (error) {
-    
-  }
+    const feedbackNotActive = await feedbackService.softDeleteFeedback(feedback.id)
+    router.push({ name: 'home' })
+  } catch (error) {}
 }
 
-async function loadParentOrProfessorName() {
+async function loadFeedbackInfo() {
   try {
-    const userId = perfil.value == 'pais' ? feedback.parentId : feedback.teacherid 
-    user = await userService.getUserById(userId);
-  } catch (error) {
-    
-  }
+    feedback = await feedbackService.findFeebacksById(feedbackId)
+    const userId = perfil.value == 'pais' ? feedback.parent_id : feedback.teacher_id
+    parentOrProfessor = await userService.getUserById(userId)
+    loading.value = false
+  } catch (error) {}
 }
 
 async function update() {
   try {
-
-
-      const feedback = await feedbackService.updateUser(feedback);
-
-    } catch (error) {
-      
-    }
+    const feedbackUpdate = await feedbackService.updateFeedback(feedback)
+    router.push({ name: 'home' })
+  } catch (error) {}
 }
 </script>

@@ -1,6 +1,6 @@
 <template>
-  <div class="bg-zinc-100 mt-20 rounded-[10px] shadow border">
-    <div class="grid grid-cols-2 gap-20 p-10">
+  <div class="bg-zinc-100 mt-20 mb-20 rounded-[10px] shadow border">
+    <div class="grid md:grid-cols-2 sm:grid-cols-1 gap-20 p-10">
       <div class="flex flex-col items-center">
         <img class="w-56 h-[189px]" src="../assets/images/logo.png" />
         <div class="w-[400px] h-[86px] text-gray-900 text-[50px] font-medium font-inter">
@@ -50,23 +50,22 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UserService } from '@/services/UsuarioService';
-import { UserCreationDTO, UserDTO } from "src/dtos/user-dto";
+import { UserService } from '@/services/UsuarioService'
+import { UserCreationDTO, UserDTO } from '../dtos/user-dto'
 import MessageError from '../components/MessageError.vue'
 import { useUsuarioStore } from '../stores/'
-import { useRouter } from 'vue-router';
-const router = useRouter();
+import { useRouter } from 'vue-router'
+const router = useRouter()
 
-const store = useUsuarioStore();
+const store = useUsuarioStore()
 
-const userService : UserService = new UserService;
+const userService: UserService = new UserService()
 
 const email = ref('')
 const password = ref('')
 const errorEmail = ref('')
 const errorPassword = ref('')
 const errorAutenticacao = ref('')
-
 
 const validateEmail = () => {
   if (email.value.length == 0 || !/^\S+@\S+\.\S+$/.test(email.value)) {
@@ -99,14 +98,13 @@ const login = () => {
   }
 }
 
-async function fazerLogin(email : string, password : string) {
+async function fazerLogin(email: string, password: string) {
   try {
-    const user = await userService.loginUsuario(email, password);
-    store.login(store.$state,user);
-    router.push({ name: 'home' });
+    const user = await userService.loginUsuario(email, password)
+    store.login(store.$state, user)
+    router.push({ name: 'home' })
   } catch (error) {
-    errorAutenticacao.value = "Erro ao logar, verifique as informações de login";
+    errorAutenticacao.value = 'Erro ao logar, verifique as informações de login'
   }
 }
-
 </script>

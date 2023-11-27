@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-zinc-100 w-3/4  mt-20 rounded-[10px] font-inter shadow border">
+  <div class="bg-zinc-100 w-3/4 mt-20 rounded-[10px] font-inter shadow border">
     <div class="p-10">
       <div class="text-gray-900 text-4xl text-start font-light font-inter">Pesquisar Pais:</div>
       <div class="flex flex-row justify-items-start">
@@ -32,33 +32,32 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="bg-light-gray border-b" v-for="pais in listUsuario">
+              <tr class="bg-light-gray text-gray-800 border-b" v-for="pais in listUsuario">
                 <td scope="row" class="px-6 py-4">
                   {{ pais.id.valueOf() }}
                 </td>
                 <td class="pr-90 py-4">{{ pais.name }}</td>
-                <td class="pr-90 py-4">{{ pais.children}}</td>
+                <td class="pr-90 py-4">{{ pais.children }}</td>
                 <td class="px-6 py-4">
                   <div
                     class="flex-col mt-8 space-y-4 md:flex md:space-y-0 md:flex-row md:items-center md:space-x-10 md:mt-0"
                   >
-                    <a @click="adicionarContato(pais.id, usuario.id)">
+                    <a @click="adicionarContato(pais.id, usuario.id, pais.name)">
                       <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width="1.5"
-                      stroke="currentColor"
-                      class="w-6 h-6"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M12 4.5v15m7.5-7.5h-15"
-                      />
-                    </svg>
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke-width="1.5"
+                        stroke="currentColor"
+                        class="w-6 h-6"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M12 4.5v15m7.5-7.5h-15"
+                        />
+                      </svg>
                     </a>
-                   
                   </div>
                 </td>
               </tr>
@@ -73,21 +72,21 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import MessageError from '@/components/MessageError.vue'
-import { UserService } from '@/services/UsuarioService';
-import { ContatoService } from '@/services/ContatoService';
-import { UserDTO } from "src/dtos/user-dto";
-import { useRouter } from 'vue-router';
-import { ContactCreationDTO } from '@/dtos/contato-dto';
+import { UserService } from '@/services/UsuarioService'
+import { ContatoService } from '@/services/ContatoService'
+import { UserDTO } from '../dtos/user-dto'
+import { useRouter } from 'vue-router'
+import { ContactCreationDTO } from '@/dtos/contato-dto'
 import { useUsuarioStore } from '../stores/'
 
-const store = useUsuarioStore();
-const usuario = store.usuario;
+const store = useUsuarioStore()
+const usuario = store.usuario
 
 const listUsuario = ref<UserDTO[]>([])
 
-const router = useRouter();
-const userService = new UserService();
-const contatoService = new ContatoService();
+const router = useRouter()
+const userService = new UserService()
+const contatoService = new ContatoService()
 
 const pesquisa = ref('')
 
@@ -96,9 +95,10 @@ const errorPesquisa = ref('')
 const validatePesquisa = () => {
   if (pesquisa.value.length == 0) {
     errorPesquisa.value = 'Preencha o campo pesquisa.'
-  } else {
-    errorPesquisa.value = ''
+    return false
   }
+
+  return true
 }
 
 const cleanErrors = () => {
@@ -107,10 +107,9 @@ const cleanErrors = () => {
 
 const buscarPais = () => {
   cleanErrors()
-  validatePesquisa()
-  if (errorPesquisa.value === '') {
+  if (validatePesquisa()) {
     listUsuario.value = []
-    pesquisarPais(pesquisa.value);
+    pesquisarPais(pesquisa.value)
   }
 }
 
@@ -119,26 +118,33 @@ const cleanPesquisa = () => {
   pesquisa.value = ''
 }
 
-async function pesquisarPais(name : string) {
+async function pesquisarPais(name: string) {
   try {
-    const pais = await userService.getParentByName(name);
+    const pais = await userService.getProfessorByName(name)
+    if (pais.length == 0) {
+      errorPesquisa.value = `Nenhum usuário encontrato.`
+    }
     listUsuario.value.push(...pais)
-  } catch (error) {
-    
-  }
+  } catch (error) {}
 }
 
-async function adicionarContato(paiId : number, professorId : number) {
+async function adicionarContato(paiId: number, professorId: number, paisName: string) {
   try {
-    const contato : ContactCreationDTO = {
-      parentId : paiId,
-      teacherId : professorId
-    };
-    const novoContato = await contatoService.criarContato(contato);
-    console.log(novoContato)
-  } catch (error) {
-    
-  }
-}
+    const existeContato = await contatoService.getByContactByParentIDAndTeacherID(
+      paiId,
+      professorId
+    )
 
+    if (existeContato.length == 0) {
+      const contato: ContactCreationDTO = {
+        parent_id: paiId,
+        teacher_id: professorId
+      }
+      const novoContato = await contatoService.criarContato(contato)
+      errorPesquisa.value = `O usuário ${paisName} foi adicionado a lista de contatos de pais`
+    } else {
+      errorPesquisa.value = `O usuário ${paisName} já está na lista de contatos de pais`
+    }
+  } catch (error) {}
+}
 </script>

@@ -33,29 +33,29 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="bg-light-gray border-b" v-for="professor in listProfessor">
+              <tr class="bg-light-gray text-black border-b" v-for="professor in listProfessor">
                 <td scope="row" class="px-6 py-4">{{ professor.id }}</td>
                 <td class="pr-90 py-4">{{ professor.name }}</td>
                 <td class="px-6 py-4">
                   <div
                     class="flex-col mt-8 space-y-4 md:flex md:space-y-0 md:flex-row md:items-center md:space-x-10 md:mt-0"
                   >
-                  <a @click="adicionarContato(usuario.id, professor.id, )">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width="1.5"
-                      stroke="currentColor"
-                      class="w-6 h-6"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M12 4.5v15m7.5-7.5h-15"
-                      />
-                    </svg>
-                  </a>
+                    <a @click="adicionarContato(usuario.id, professor.id, professor.name)">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke-width="1.5"
+                        stroke="currentColor"
+                        class="w-6 h-6"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M12 4.5v15m7.5-7.5h-15"
+                        />
+                      </svg>
+                    </a>
                   </div>
                 </td>
               </tr>
@@ -70,19 +70,19 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import MessageError from '@/components/MessageError.vue'
-import { UserService } from '@/services/UsuarioService';
-import { ContatoService } from '@/services/ContatoService';
-import { UserDTO } from "src/dtos/user-dto";
-import { useRouter } from 'vue-router';
-import { ContactCreationDTO } from '@/dtos/contato-dto';
+import { UserService } from '@/services/UsuarioService'
+import { ContatoService } from '@/services/ContatoService'
+import { UserDTO } from '../dtos/user-dto'
+import { useRouter } from 'vue-router'
+import { ContactCreationDTO } from '@/dtos/contato-dto'
 import { useUsuarioStore } from '../stores/'
 
 const store = useUsuarioStore()
 
-const usuario = store.usuario;
-const router = useRouter();
-const userService = new UserService();
-const contatoService = new ContatoService();
+const usuario = store.usuario
+const router = useRouter()
+const userService = new UserService()
+const contatoService = new ContatoService()
 
 const listProfessor = ref<UserDTO[]>([])
 
@@ -92,10 +92,10 @@ const errorPesquisa = ref('')
 const validatePesquisa = () => {
   if (pesquisa.value.length == 0) {
     errorPesquisa.value = 'Preencha o campo pesquisa.'
-    return false;
+    return false
   }
 
-  return true;
+  return true
 }
 
 const cleanErrors = () => {
@@ -105,36 +105,43 @@ const cleanErrors = () => {
 const buscarProfessor = () => {
   cleanErrors()
   if (validatePesquisa()) {
+    listProfessor.value = []
     pesquisarProfessor(pesquisa.value)
   }
 }
 
-async function pesquisarProfessor(name : string) {
+async function pesquisarProfessor(name: string) {
   try {
-    const pais = await userService.getProfessorByName(name);
-    listProfessor.value.push(...pais)
-  } catch (error) {
-    
-  }
+    const professores = await userService.getParentByName(name)
+    if (professores.length == 0) {
+      errorPesquisa.value = `Nenhum usuário encontrato.`
+    }
+    listProfessor.value.push(...professores)
+  } catch (error) {}
 }
 
-async function adicionarContato(paiId : number, professorId : number) {
+async function adicionarContato(paiId: number, professorId: number, professorName: string) {
   try {
-    const contato : ContactCreationDTO = {
-      parentId : paiId,
-      teacherId : professorId
-    };
-    const novoContato = await contatoService.criarContato(contato);
-    console.log(novoContato)
-  } catch (error) {
-    
-  }
-}
+    const existeContato = await contatoService.getByContactByParentIDAndTeacherID(
+      paiId,
+      professorId
+    )
 
+    if (existeContato.length == 0) {
+      const contato: ContactCreationDTO = {
+        parent_id: paiId,
+        teacher_id: professorId
+      }
+      const novoContato = await contatoService.criarContato(contato)
+      errorPesquisa.value = `O professor ${professorName} foi adicionado a lista de contatos de professores`
+    } else {
+      errorPesquisa.value = `O professor ${professorName} já está na lista de contatos de professores`
+    }
+  } catch (error) {}
+}
 
 const cleanPesquisa = () => {
   cleanErrors()
   pesquisa.value = ''
 }
-
 </script>
