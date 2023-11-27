@@ -3,10 +3,10 @@
     <div class="p-10">
       <div class="flex justify-between flex-row justify-items-start" @load="loadUserFeedbacks">
         <div class="text-gray-900 text-4xl text-center font-light font-inter">Histórico:</div>
-        <div v-if="perfil.valueOf() == 'pais'" class="">
+        <div v-if="perfil.valueOf() == 'pais' && usuario.feedbackActive" class="">
           <router-link to="/feedback/solicitacao">
             <button
-              class="w-[256px] h-[58px] bg-gray-800 rounded-[5px] text-zinc-100 text-[20px] font-normal font-inter"
+              class="w-60 h-[58px] bg-gray-800 rounded-[5px] text-zinc-100 text-[20px] font-normal font-inter"
             >
               Solicitar Feedback
             </button>
@@ -25,7 +25,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="bg-light-gray border-b" v-for="feedback in listFeedback">
+              <tr class="bg-light-gray text-gray-800 border-b" v-for="feedback in listFeedback">
                 <td scope="row" class="px-6 py-4">
                   {{ feedback.id }}
                 </td>
@@ -65,14 +65,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onBeforeMount, ref } from 'vue'
 import { useUsuarioStore } from '../stores/'
-import { FeedbackService } from '@/services/FeedbackService';
-import type { FeedbackDTO } from '@/dtos/feedback-dto';
+import { FeedbackService } from '@/services/FeedbackService'
+import type { FeedbackDTO } from '@/dtos/feedback-dto'
+
+onBeforeMount(() => {
+  loadUserFeedbacks()
+})
 
 const store = useUsuarioStore()
-
-const feedbackService : FeedbackService = new FeedbackService;
+const feedbackService: FeedbackService = new FeedbackService()
 
 const listFeedback = ref<FeedbackDTO[]>([])
 
@@ -82,14 +85,8 @@ const perfil = ref(usuario.profile.toLocaleLowerCase())
 
 async function loadUserFeedbacks() {
   try {
-    const feedbackList = await feedbackService.findFeebacksByUserId(usuario.id);
-    listFeedback.value= feedbackList
-  } catch (error) {
-    
-  }
+    const feedbackList = await feedbackService.findFeebacksByUserId(usuario.id)
+    listFeedback.value = feedbackList
+  } catch (error) {}
 }
-
-loadUserFeedbacks();
-
-
 </script>

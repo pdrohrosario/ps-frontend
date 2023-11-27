@@ -5,7 +5,7 @@
       <form @submit.prevent="enviarSolicitacao()">
         <div class="text-gray-900 text-xl text-start font-light font-inter mt-5">Professor:</div>
         <div class="flex w-full flex-row justify-items-start">
-          <VueMultiselect v-model="professor" :options="listProfessores"> </VueMultiselect>
+          <VueMultiselect v-model="professor" :options="listProfessoresSelecao"> </VueMultiselect>
         </div>
         <MessageError v-if="errorProfessor" :message="errorProfessor" />
         <div class="text-gray-900 text-xl text-start font-light font-inter mt-5">Aluno:</div>
@@ -45,19 +45,23 @@ import { ref, onMounted } from 'vue'
 import MessageError from '@/components/MessageError.vue'
 import VueMultiselect from 'vue-multiselect'
 import { useUsuarioStore } from '../stores/'
-import type { UserDTO } from '@/dtos/user-dto';
-import { FeedbackService } from '@/services/FeedbackService';
-import type { FeedbackCreationDTO } from '@/dtos/feedback-dto';
+import type { UserDTO } from '@/dtos/user-dto'
+import { FeedbackService } from '@/services/FeedbackService'
+import { ContatoService } from '@/services/ContatoService'
+import type { FeedbackCreationDTO } from '@/dtos/feedback-dto'
+import { useRouter } from 'vue-router'
 
 const store = useUsuarioStore()
 
 const usuario = store.usuario
 const feedbackService = new FeedbackService()
-const listProfessores = ref<UserDTO[]>([])
-
+const listProfessores = ref<UserDTO[]>()
+const listProfessoresSelecao = ref<String[]>([])
+const contatoService = new ContatoService()
 const listAlunos = ref<String[]>([])
+const router = useRouter()
 
-listAlunos.value.push(...usuario.children.split(" "));
+listAlunos.value.push(...usuario.children.split('|'))
 
 const professor = ref('')
 const solicitacao = ref('')
@@ -67,31 +71,33 @@ const errorProfessor = ref('')
 const errorSolicitacao = ref('')
 const errorAluno = ref('')
 
+buscarProfessores()
+
 const validateProfessor = () => {
   if (professor.value.length == 0) {
     errorProfessor.value = 'Selecione um professor para avaliar o feedback.'
-    return false;
+    return false
   }
 
-  return true;
+  return true
 }
 
 const validateAluno = () => {
   if (aluno.value.length == 0) {
     errorAluno.value = 'Selecione um aluno para o feedback.'
-    return false;
+    return false
   }
 
-  return true;
+  return true
 }
 
 const validateSolicitacao = () => {
   if (solicitacao.value.length == 0) {
     errorSolicitacao.value = 'Preencha o feedback desejado para professor.'
-    return false;
-  } 
+    return false
+  }
 
-  return true;
+  return true
 }
 
 const cleanErrors = () => {
@@ -109,29 +115,36 @@ const cleanInput = () => {
 
 const enviarSolicitacao = () => {
   cleanErrors()
-  
+
   if (validateProfessor() && validateSolicitacao() && validateAluno()) {
-    
+    createFeedback()
   }
 }
 
-const professorId = ref(1);
-async function createFeedback(){
-  try{
-
-    const feedbackDto : FeedbackCreationDTO = {
-      question: solicitacao.value.toString(), 
-      child: aluno.value.toString(),
-      parentId: usuario.id,
-      teacherId: professorId.value,
-    } 
-
-    const feedback = await feedbackService.createFeedback(feedbackDto);
-  }
-  catch (e) {
-  }
+async function buscarProfessores() {
+  try {
+    listProfessores.value = await contatoService.getByParentID(usuario.id)
+    listProfessoresSelecao.value = listProfessores.value.map(
+      (professor) => `${professor.id} - ${professor.name}`
+    )
+  } catch (error) {}
 }
 
+async function createFeedback() {
+  try {
+    const professorId = listProfessores.value?.find(
+      (user) => professor.value === `${user.id} - ${user.name}`
+    )?.id
 
+    const feedbackDto: FeedbackCreationDTO = {
+      question: solicitacao.value,
+      child: aluno.value,
+      parent_id: usuario.id,
+      teacher_id: professorId || 0
+    }
+    const feedback = await feedbackService.createFeedback(feedbackDto)
+    router.push({ name: 'home' })
+  } catch (e) {}
+}
 </script>
 <style src="vue-multiselect/dist/vue-multiselect.css"></style>

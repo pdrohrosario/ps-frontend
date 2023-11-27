@@ -4,7 +4,7 @@ export const useUsuarioStore = defineStore('usuario', {
   state: () => {
     return {
       isAuthenticated: false,
-      usuario:  {
+      usuario: {
         id: 0,
         email: '',
         name: '',
@@ -12,6 +12,7 @@ export const useUsuarioStore = defineStore('usuario', {
         children: '',
         feedback_frequence: 0,
         password: '',
+        feedbackActive: false
       }
     }
   },
@@ -20,7 +21,7 @@ export const useUsuarioStore = defineStore('usuario', {
       state.isAuthenticated = true
       state.usuario = userData
     },
-    updateUser(state, userDate){
+    updateUser(state, userData) {
       state.usuario = userData
     },
     logout(state) {
@@ -33,6 +34,7 @@ export const useUsuarioStore = defineStore('usuario', {
         children: [],
         feedback_frequence: 0,
         password: '',
+        feedbackActive: false
       }
     }
   }

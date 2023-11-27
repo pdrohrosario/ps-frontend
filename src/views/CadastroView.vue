@@ -11,7 +11,7 @@
           </div>
           <div class="mt-5">
             <div class="text-gray-900 text-2xl font-normal font-inter block">Nome:</div>
-            <input type="password" class="w-[396px] h-[38px]" v-model="nome" />
+            <input type="text" class="w-[396px] h-[38px]" v-model="nome" />
             <MessageError v-if="errorNome" :message="errorNome" class="block" />
           </div>
           <div class="mt-5">
@@ -35,24 +35,24 @@
               </div>
               <div class="custom-number-input h-10 w-32">
                 <div class="flex flex-row h-10 w-full rounded-lg relative bg-transparent mt-1">
-                  <button
-                    @click="decrement"
+                  <a
+                    @click="decrement()"
                     class="bg-light-gray text-gray-600 hover:text-gray-700 hover:bg-gray-400 h-full w-20 rounded-l cursor-pointer outline-none"
                   >
                     <span class="m-auto text-2xl font-thin">−</span>
-                  </button>
+                  </a>
                   <input
                     v-model="count"
                     type="number"
                     class="outline-none focus:outline-none text-center w-full bg-light-gray font-semibold text-md hover:text-black focus:text-black md:text-base cursor-default flex items-center text-gray-700 outline-none"
                     name="custom-input-number"
                   />
-                  <button
-                    @click="increment"
+                  <a
+                    @click="increment()"
                     class="bg-light-gray text-gray-600 hover:text-gray-700 hover:bg-gray-400 h-full w-20 rounded-r cursor-pointer"
                   >
                     <span class="m-auto text-2xl font-thin">+</span>
-                  </button>
+                  </a>
                 </div>
               </div>
               <div class="mt-5" v-for="index in nrFilhos">
@@ -77,7 +77,7 @@
                     class="bg-light-gray text-gray-600 hover:text-gray-700 hover:bg-gray-400 h-full w-20 rounded-l cursor-pointer outline-none"
                   >
                     <span class="m-auto text-2xl font-thin">−</span>
-                </a>
+                  </a>
                   <input
                     v-model="count"
                     type="number"
@@ -89,7 +89,7 @@
                     class="bg-light-gray text-gray-600 hover:text-gray-700 hover:bg-gray-400 h-full w-20 rounded-r cursor-pointer"
                   >
                     <span class="m-auto text-2xl font-thin">+</span>
-                </a>
+                  </a>
                 </div>
               </div>
             </div>
@@ -110,12 +110,11 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UserService } from '@/services/UsuarioService';
-import { UserCreationDTO, UserDTO } from "src/dtos/user-dto";
+import { UserService } from '@/services/UsuarioService'
+import { UserCreationDTO, UserDTO } from '../dtos/user-dto'
 import MessageError from '../components/MessageError.vue'
-import { useRouter } from 'vue-router';
-const router = useRouter();
-
+import { useRouter } from 'vue-router'
+const router = useRouter()
 
 const email = ref('')
 const password = ref('')
@@ -130,17 +129,17 @@ const errorEmail = ref('')
 const errorPassword = ref('')
 const errorCount = ref('')
 const errorPerfil = ref('')
-const errorCadastro = ref('');
+const errorCadastro = ref('')
 
 const nomesFilhos = ref(Array.from({ length: count.value }, () => '')) // Inicializa um array vazio de nomes dos filhos
 
-const userService : UserService = new UserService;
+const userService: UserService = new UserService()
 
 const validatePerfil = () => {
   if (perfil.value.length == 0) {
     errorPerfil.value = 'Necessário informar um perfil.'
     return false
-  } 
+  }
 
   return true
 }
@@ -148,27 +147,29 @@ const validatePerfil = () => {
 const validateEmail = () => {
   if (email.value.length == 0 || !/^\S+@\S+\.\S+$/.test(email.value)) {
     errorEmail.value = 'Email inválido, insira novamente.'
-    return false;
-  } 
-  return true;
+    return false
+  }
+  return true
 }
 
 const validatePassword = () => {
   if (password.value.length == 0 || password.value.length < 5) {
     errorPassword.value = 'Senha inválida, insira novamente.'
-    return false;
-  } 
-  return true;
+    return false
+  }
+  return true
 }
 
 const validateCount = () => {
   if (count.value == 0) {
-    errorCount.value = perfil.value.toLocaleLowerCase() == "professor" ? 'Número de feedback deve ser maior que zero.' : 'Número de filhos deve ser maior que zero.'
-    return false;
-  } 
-  return true;
+    errorCount.value =
+      perfil.value.toLocaleLowerCase() == 'professor'
+        ? 'Número de feedback deve ser maior que zero.'
+        : 'Número de filhos deve ser maior que zero.'
+    return false
+  }
+  return true
 }
-
 
 const cleanErrors = () => {
   errorEmail.value = ''
@@ -182,33 +183,40 @@ const salvarPefil = () => {
   cleanErrors()
   if (validateEmail() && validatePassword() && validatePerfil() && validateCount()) {
     //validarEmailCadastro(email.value)
-    if(errorCadastro.value === '') {
-      const usuarioInfoCadastro : UserCreationDTO = {
-        email : email.value,
-        name : nome.value,
+    if (errorCadastro.value === '') {
+      const usuarioInfoCadastro: UserCreationDTO = {
+        email: email.value,
+        name: nome.value,
         profile: perfil.value,
-        children: nomesFilhos.value.join(" "),
+        children: nomesFilhos.value.join(' '),
         feedback_frequence: perfil.value == 'professor' ? count.value : 0,
-        password: password.value,
-      } 
+        password: password.value
+      }
       criarUsuario(usuarioInfoCadastro)
     }
-   
   }
 }
 
 const decrement = () => {
-  count.value = Math.max(1, count.value - 1)
+  count.value = Math.max(1, nrFilhos.value - 1)
+  perfilParamCount()
 }
 
 const increment = () => {
   count.value += 1
+  perfilParamCount()
+}
+
+const perfilParamCount = () => {
+  if (perfil.value === 'pais') {
+    nrFilhos.value = count.value
+  }
 }
 
 async function validarEmailCadastro(email: string) {
   try {
-    const usuarioJaCadastrado =  await userService.getUserByEmail(email);
-    if(usuarioJaCadastrado){
+    const usuarioJaCadastrado = await userService.getUserByEmail(email)
+    if (usuarioJaCadastrado) {
       errorCadastro.value = 'Email de usuário já cadastrado, utilize outro email'
     }
   } catch (error) {
@@ -216,14 +224,12 @@ async function validarEmailCadastro(email: string) {
   }
 }
 
-async function criarUsuario(userData : UserCreationDTO) {
+async function criarUsuario(userData: UserCreationDTO) {
   try {
     const usuarioCriado = userService.createUser(userData)
-    router.push({ name: 'login' });
+    router.push({ name: 'login' })
   } catch (error) {
-    errorCadastro.value = "Erro ao logar, verifique as informações de login";
+    errorCadastro.value = 'Erro ao logar, verifique as informações de login'
   }
 }
-
-
 </script>

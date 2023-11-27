@@ -2,7 +2,9 @@
   <div class="bg-gray-800 font-inter">
     <nav class="px-5 py-3 mx-auto md:flex md:justify-between md:items-center">
       <div class="flex text-[20px]">
-        <router-link to="/home"> <img class="w-[119px]" src="../assets/images/logo.png" /></router-link>
+        <router-link to="/home">
+          <img class="w-[119px]" src="../assets/images/logo.png"
+        /></router-link>
         <ul
           v-show="props.habilitarIcones.valueOf()"
           class="flex-col mt-8 space-y-4 md:flex md:space-y-0 md:flex-row md:items-center md:space-x-10 md:mt-0"
@@ -10,7 +12,10 @@
           <li class="text-white hover:text-neutral-400">
             <router-link to="/home">Histórico</router-link>
           </li>
-          <li v-if="perfil?.valueOf() == 'pais'" class="text-white hover:text-neutral-400">
+          <li
+            v-if="store.usuario.profile.toLocaleLowerCase() == 'pais'"
+            class="text-white hover:text-neutral-400"
+          >
             <router-link to="/professores">Professores</router-link>
           </li>
           <li v-else class="text-white hover:text-neutral-400">
@@ -51,7 +56,6 @@
                 stroke-width="1.5"
                 stroke="currentColor"
                 class="w-8 h-8"
-                
               >
                 <path
                   stroke-linecap="round"
@@ -69,16 +73,18 @@
 
 <script setup lang="ts">
 import { useUsuarioStore } from '../stores/index'
-import { useRouter } from 'vue-router';
+import { useRouter } from 'vue-router'
 
-const router = useRouter();
-const store = useUsuarioStore();
+const router = useRouter()
+const store = useUsuarioStore()
 
-const perfil = store.usuario.profile.toLocaleLowerCase();
+const perfil = store.usuario.profile.toLocaleLowerCase()
+
+console.log(perfil)
 
 const logout = () => {
-  store.logout(store.$state);
-  router.push({ name: 'login' });
+  store.logout(store.$state)
+  router.push({ name: 'login' })
 }
 
 const props = defineProps({

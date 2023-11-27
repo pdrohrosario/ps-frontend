@@ -26,56 +26,56 @@ const router = createRouter({
       path: '/home',
       name: 'home',
       component: HomeView,
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true }
     },
     {
       path: '/pais',
       name: 'pais',
       component: PesquisaPaisView,
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true }
     },
     {
       path: '/professores',
       name: 'professores',
       component: PesquisaProfessorView,
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true }
     },
     {
       path: '/perfil',
       name: 'perfil',
       component: PerfilUsuarioView,
-      meta: { requiresAuth: true},
+      meta: { requiresAuth: true }
     },
     {
       path: '/feedback/solicitacao',
       name: 'solicitar-feedback',
       component: FeedbackRequestView,
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true }
     },
     {
       path: '/feedback/resposta/:id',
       name: 'responder-feedback',
       component: FeedbackResponseView,
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true }
     }
   ]
 })
 
 router.beforeEach(async (to, from, next) => {
   if (to.meta.requiresAuth) {
-    const store = useUsuarioStore();
+    const store = useUsuarioStore()
     if (!store.isAuthenticated) {
-      next('/');
-      return;
+      next('/')
+      return
     }
   }
 
   if (to.name === 'Login' || to.name === 'Cadastro') {
-    next();
-    return;
+    next()
+    return
   }
 
-  next();
-});
+  next()
+})
 
 export default router

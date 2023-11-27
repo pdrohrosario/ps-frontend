@@ -1,4 +1,4 @@
 export class ContactCreationDTO {
-    parentId: number;
-    teacherId: number;
-  }
+  parent_id: number
+  teacher_id: number
+}
