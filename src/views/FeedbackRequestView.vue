@@ -135,15 +135,22 @@ async function createFeedback() {
     const professorId = listProfessores.value?.find(
       (user) => professor.value === `${user.id} - ${user.name}`
     )?.id
+    
+    const allowed = await feedbackService.isAllowedToAskFeedback(usuario.id, professorId || 0)
 
-    const feedbackDto: FeedbackCreationDTO = {
-      question: solicitacao.value,
-      child: aluno.value,
-      parent_id: usuario.id,
-      teacher_id: professorId || 0
+    if(allowed){
+      const feedbackDto: FeedbackCreationDTO = {
+        question: solicitacao.value,
+        child: aluno.value,
+        parent_id: usuario.id,
+        teacher_id: professorId || 0
+      }
+      const feedback = await feedbackService.createFeedback(feedbackDto)
+      router.push({ name: 'home' })
     }
-    const feedback = await feedbackService.createFeedback(feedbackDto)
-    router.push({ name: 'home' })
+    else{
+      errorSolicitacao.value = `O limite de feedbacks do usuário ${usuario.name} ao professor ${professor.value} foi esgotado!`
+    }
   } catch (e) {}
 }
 </script>

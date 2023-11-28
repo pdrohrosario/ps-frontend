@@ -60,4 +60,15 @@ export class FeedbackService {
     const data = await response.json()
     return data
   }
+
+  async isAllowedToAskFeedback(parentId: number, teacherId : number): Promise<boolean> {
+    try {
+      const response = await fetch(`${this.backendUrl}/feedback/isAllowed/${parentId}/${teacherId}
+      `)
+      const data = await response.json()
+      return data
+    } catch (error) {
+      throw error
+    }
+  }
 }
