@@ -42,26 +42,28 @@
             type="text"
             class="w-full min-h-[200px] rounded-[5px] border"
             v-bind:readonly="true"
+            v-model="feedback.question"
           ></textarea>
         </div>
-        <div v-if="perfil == 'professor' || resposta.trim() != ''">
+        <div v-if="perfil == 'professor' && feedback.active || (feedback.response != null && feedback.response != '')">
           <div class="text-gray-900 text-xl text-start font-light font-inter mt-5">Resposta:</div>
           <div class="flex flex-row justify-items-start">
             <textarea
               type="text"
               class="w-full min-h-[200px] rounded-[5px] border"
-              :readonly="!ativo"
+              :readonly="!feedback.active"
+              v-model="feedback.response"
             ></textarea>
           </div>
           <MessageError v-if="errorResposta" :message="errorResposta" />
         </div>
         <div
-          v-if="perfil == 'professor' && ativo"
+          v-if="perfil == 'professor' && feedback.active"
           class="flex justify-between py-3 flex-row sm:justify-items-start justify-items-end"
         >
           <div>
             <button
-              @click="rejeitarFeedback"
+              @click="rejeitarFeebdack"
               class="w-[210px] h-[48px] bg-red-800 mr-3 rounded-[5px] text-zinc-100 text-[20px] font-normal font-inter']"
             >
               Rejeitar Feedback
@@ -84,9 +86,15 @@
         </div>
         <div
           class="mt-2"
-          v-if="perfil == 'pais' && resposta.trim() == '' && feedback.active == true"
+          v-if="perfil == 'pais' && (feedback.response == ''||  feedback.response == null) && feedback.active"
         >
           <MessageError :message="'Feedback em análise, aguarde a resposta do professor!'" />
+        </div>
+        <div
+          class="mt-2"
+          v-if="(feedback.response == null || feedback.response == '') && feedback.active == false"
+        >
+          <MessageError :message="`O feedback solicitado foi rejeitado pelo professor!`" />
         </div>
       </form>
     </div>
@@ -118,12 +126,11 @@ const usuario = store.usuario
 const perfil = ref(usuario.profile.toLocaleLowerCase())
 var parentOrProfessor: UserDTO
 const userService = new UserService()
-const ativo = ref(true)
 const errorResposta = ref('')
 const router = useRouter()
 
 const validateResposta = () => {
-  if (resposta.value.trim() == '') {
+  if (feedback.response === null) {
     errorResposta.value = 'Preencha o campo resposta do feedback solicitado.'
     return false
   }
@@ -143,13 +150,18 @@ const cleanInput = () => {
 const updateFeebdack = () => {
   cleanErrors()
   if (validateResposta()) {
-    update()
+      feedback.active = false;
+      update()
   }
 }
 
-async function rejeitarFeedback() {
+const rejeitarFeebdack = () => {
+  feedback.response = ""
+}
+
+async function softDeleteFeedback(feedbackId : number) {
   try {
-    const feedbackNotActive = await feedbackService.softDeleteFeedback(feedback.id)
+    const feedbackNotActive = await feedbackService.softDeleteFeedback(feedbackId)
     router.push({ name: 'home' })
   } catch (error) {}
 }
@@ -157,7 +169,7 @@ async function rejeitarFeedback() {
 async function loadFeedbackInfo() {
   try {
     feedback = await feedbackService.findFeebacksById(feedbackId)
-    const userId = perfil.value == 'pais' ? feedback.parent_id : feedback.teacher_id
+    const userId = perfil.value == 'pais' ? feedback.teacher_id : feedback.parent_id
     parentOrProfessor = await userService.getUserById(userId)
     loading.value = false
   } catch (error) {}
@@ -166,6 +178,8 @@ async function loadFeedbackInfo() {
 async function update() {
   try {
     const feedbackUpdate = await feedbackService.updateFeedback(feedback)
+    softDeleteFeedback(feedbackUpdate.id)
+
     router.push({ name: 'home' })
   } catch (error) {}
 }

@@ -62,7 +62,7 @@
                 <input
                   type="text"
                   class="w-full h-[45px] rounded-[5px] border"
-                  v-model="nomesFilhos[index]"
+                  v-model="nomesFilhos[index]" required
                 />
               </div>
             </div>

@@ -127,7 +127,7 @@
                   <input
                     type="text"
                     class="w-full h-[45px] rounded-[5px] border"
-                    v-model="listFilhos[index - 1]"
+                    v-model="listFilhos[index - 1]" required
                   />
                 </div>
               </div>
