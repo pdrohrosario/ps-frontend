@@ -1,9 +1,9 @@
 <template>
-  <div class="bg-zinc-100 w-11/12 h-[500px] mt-20 rounded-[10px] font-inter shadow border">
+  <div class="bg-zinc-100 w-11/12  mt-20 rounded-[10px] font-inter shadow border">
     <div class="p-10">
       <div class="flex justify-between flex-row justify-items-start" @load="loadUserFeedbacks">
         <div class="text-gray-900 text-4xl text-center font-light font-inter">Histórico:</div>
-        <div v-if="perfil.valueOf() == 'pais' && usuario.feedbackActive" class="">
+        <div v-if="perfil.valueOf() == 'pais'" class="">
           <router-link to="/feedback/solicitacao">
             <button
               class="w-60 h-[58px] bg-gray-800 rounded-[5px] text-zinc-100 text-[20px] font-normal font-inter"
