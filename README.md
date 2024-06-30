@@ -10,6 +10,7 @@ PS Frontend is the frontend system for a feedback application, designed to facil
 - [Usage](#usage)
 - [Project Structure](#project-structure)
 - [Contributing](#contributing)
+- [Related Projects](#related-projects)
 - [License](#license)
 
 ## Features
@@ -68,6 +69,10 @@ PS Frontend is the frontend system for a feedback application, designed to facil
 3. Commit your changes (`git commit -m 'Add new feature'`).
 4. Push to the branch (`git push origin feature/new-feature`).
 5. Open a Pull Request.
+
+## Related Projects
+
+- [PS Backend](https://github.com/pdrohrosario/ps-backend): The backend system for the feedback application.
 
 ## License
 
